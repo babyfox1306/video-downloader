@@ -19,33 +19,34 @@ def home():
 
 # API endpoint để nhận URL video và tải video
 @app.route("/api/video", methods=["POST"])
-def get_video_data():
+def download_video():
     try:
-        # Lấy URL video từ client
-        video_url = request.json.get("url")
-        
-        if not video_url:
-            return jsonify({"error": "Invalid URL"}), 400
+        data = request.json
+        video_url = data.get("url")
 
-        # Cấu hình để tải video và âm thanh, sau đó hợp nhất thành MP4
-        yt_dlp_options = {
-            'format': 'bestvideo+bestaudio/best',
-            'merge_output_format': 'mp4',  # Chuyển về định dạng MP4 chuẩn.
-            'outtmpl': './downloads/%(title)s.%(ext)s',
-            'postprocessors': [{
-                'key': 'FFmpegMerger'  # Không cần thêm 'prefer_ffmpeg'
-            }],
-            'quiet': True,  # Tắt log để không làm loãng output
+        if not video_url:
+            return jsonify({"error": "No URL provided"}), 400
+
+        # Ghi file tạm ở Render-compatible folder
+        output_dir = os.environ.get("TMPDIR", "/tmp")  # Sử dụng Render's TMPDIR
+        ydl_opts = {
+            'format': 'best',
+            'outtmpl': f"{output_dir}/%(title)s.%(ext)s",
         }
 
-        # Sử dụng yt-dlp để tải video
-        with yt_dlp.YoutubeDL(yt_dlp_options) as ydl:
-            ydl.download([video_url])
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(video_url, download=True)
+            filename = ydl.prepare_filename(info)
+            return jsonify({
+                "message": "Download successful",
+                "filename": filename,
+                "title": info.get("title")
+            }), 200
 
-        return jsonify({"message": "Video downloaded successfully!"})
-
+    except yt_dlp.DownloadError as e:
+        return jsonify({"error": f"Download failed: {str(e)}"}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": f"Internal error: {str(e)}"}), 500
 
 def get_video_url(pinterest_url):
     try:
