@@ -7,7 +7,7 @@ from flask_cors import CORS  # Import CORS
 import yt_dlp
 
 app = Flask(__name__)
-CORS(app, origins="http://127.0.0.1:5500")  # Thêm CORS vào toàn bộ ứng dụng với nguồn gốc cụ thể
+CORS(app, origins=["http://127.0.0.1:5500", "https://remarkable-bienenstitch-35296b.netlify.app"])  # Thêm CORS vào toàn bộ ứng dụng với nguồn gốc cụ thể
 
 # Kiểm tra và tạo thư mục nếu chưa tồn tại
 if not os.path.exists('downloads'):
