@@ -48,7 +48,7 @@
             loader.style.display = "block";
             message.innerHTML = "";  // Xóa thông báo lỗi cũ
 
-            fetch("http://127.0.0.1:5000/api/video", {
+            fetch("https://video-downloader-38i3.onrender.com/api/video", {  // Thay URL của Render
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"

@@ -44,7 +44,7 @@ async function fetchPinData(url) {
 // Hàm lấy thông tin video từ URL
 async function fetchVideoData(url) {
     try {
-        const response = await fetch('http://127.0.0.1:5000/api/video', {
+        const response = await fetch('https://video-downloader-38i3.onrender.com/api/video', {  // URL từ Render
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
