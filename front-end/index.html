@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Downloader</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Video Downloader</h1>
+            <p>Easily download videos from Pinterest, YouTube, TikTok, and Vimeo!</p>
+        </header>
+        <main>
+            <div class="input-container">
+                <input type="text" id="video-url" placeholder="Enter video link here…">
+                <button id="download-btn">Download</button>
+            </div>
+            <div class="logos">
+                <img src="pinterest-logo.png" alt="Pinterest" title="Pinterest">
+                <img src="youtube-logo.png" alt="YouTube" title="YouTube">
+                <img src="tiktok-logo.png" alt="TikTok" title="TikTok">
+                <img src="vimeo-logo.png" alt="Vimeo" title="Vimeo">
+            </div>
+            <div id="loader" style="display: none;">Loading...</div>
+            <div id="message"></div>
+        </main>
+        <footer>
+            <p>&copy; 2024 Video Downloader | <a href="mailto:support@videodownloader.com">Contact us</a></p>
+        </footer>
+    </div>
+
+    <script>
+        document.getElementById("download-btn").addEventListener("click", function() {
+            var url = document.getElementById("video-url").value;
+            var loader = document.getElementById("loader");
+            var message = document.getElementById("message");
+
+            // Kiểm tra URL hợp lệ
+            if (!url) {
+                message.innerHTML = "Please enter a valid video URL!";
+                message.style.color = "red";
+                return;
+            }
+
+            // Hiển thị loader khi bắt đầu tải
+            loader.style.display = "block";
+            message.innerHTML = "";  // Xóa thông báo lỗi cũ
+
+            fetch("https://video-downloader-38i3.onrender.com/api/video", {  // Thay URL của Render
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ "url": url })
+            })
+            .then(response => {
+                if (response.ok) {
+                    loader.style.display = "none";
+                    message.innerHTML = "Download complete!";
+                    message.style.color = "green";
+                } else {
+                    loader.style.display = "none";
+                    message.innerHTML = "Failed to download. Please try again!";
+                    message.style.color = "red";
+                }
+            })
+            .catch(error => {
+                loader.style.display = "none";
+                message.innerHTML = "Error: " + error.message;
+                message.style.color = "red";
+            });
+        });
+    </script>
+</body>
+</html>
