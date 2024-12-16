@@ -7,7 +7,7 @@ from flask_cors import CORS
 import yt_dlp
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "https://profound-sfogliatella-20b8c7.netlify.app"}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Kiểm tra và tạo thư mục nếu chưa tồn tại
 if not os.path.exists('downloads'):
@@ -26,7 +26,7 @@ def download_video():
         if not video_url:
             return jsonify({"error": "No URL provided"}), 400
 
-        output_dir = os.environ.get("TMPDIR", "/tmp")
+        output_dir = 'downloads'
         ydl_opts = {
             'format': 'bestvideo+bestaudio/best',
             'outtmpl': f"{output_dir}/%(title)s.%(ext)s",
@@ -49,7 +49,7 @@ def download_video():
 
 @app.route('/downloads/<path:filename>', methods=['GET'])
 def download_file(filename):
-    return send_from_directory(os.environ.get("TMPDIR", "/tmp"), filename)
+    return send_from_directory('downloads', filename)
 
 @app.route('/download-pin', methods=['POST'])
 def download_pin():
