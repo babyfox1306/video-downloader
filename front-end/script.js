@@ -99,45 +99,35 @@ document.addEventListener("DOMContentLoaded", function() {
     const downloadContainer = document.getElementById('download-container');
     const downloadVideoBtn = document.getElementById('download-video-btn');
 
-    // Kiểm tra nút tải có tồn tại không
     if (downloadButton) {
         downloadButton.addEventListener('click', function() {
             const url = videoUrlInput.value.trim();
-            
-            // Kiểm tra nếu URL trống
             if (!url) {
                 message.innerHTML = "Please enter a valid video URL!";
                 message.style.color = "red";
                 return;
             }
-            
-            // Hiển thị loader khi bắt đầu tải
+
             loader.style.display = "block";
-            message.innerHTML = "";  // Xóa thông báo lỗi cũ
-            downloadContainer.style.display = "none";  // Ẩn nút tải video
+            message.innerHTML = "";  // Clear old error message
+            downloadContainer.style.display = "none";  // Hide download video button
 
             fetch("https://video-downloader-38i3.onrender.com/api/video", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ "url": url })
             })
             .then(response => response.json())
             .then(data => {
                 loader.style.display = "none";
-                
-                // Kiểm tra nếu video tải thành công
                 if (data.file_url) {
                     message.innerHTML = "Download complete!";
                     message.style.color = "green";
-                    
-                    // Hiển thị nút tải video
                     downloadContainer.style.display = "block";
                     downloadVideoBtn.onclick = function() {
                         const link = document.createElement("a");
-                        link.href = data.file_url; // Đảm bảo server trả về file URL
-                        link.download = data.file_name; // Đặt tên file tự động
+                        link.href = data.file_url;
+                        link.download = data.file_name;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
