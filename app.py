@@ -51,32 +51,6 @@ def download_video():
 def download_file(filename):
     return send_from_directory(os.environ.get("TMPDIR", "/tmp"), filename)
 
-def get_video_url(pinterest_url):
-    try:
-        # Gửi yêu cầu GET đến URL của Pinterest
-        response = requests.get(pinterest_url)
-
-        # Kiểm tra xem yêu cầu có thành công không
-        if response.status_code != 200:
-            print(f"Failed to retrieve data from Pinterest. Status code: {response.status_code}")
-            return None
-
-        # Parse HTML với BeautifulSoup
-        soup = BeautifulSoup(response.text, 'html.parser')
-
-        # Tìm video trong trang, có thể phải điều chỉnh selector nếu cần
-        video_tag = soup.find('video')  # Tìm thẻ video đầu tiên
-
-        if video_tag:
-            video_url = video_tag['src']  # Lấy URL video
-            return video_url
-        else:
-            print("No video found on this Pinterest page.")
-            return None
-    except Exception as e:
-        print(f"Error: {str(e)}")
-        return None
-
 @app.route('/download-pin', methods=['POST'])
 def download_pin():
     data = request.get_json()
@@ -95,6 +69,24 @@ def download_pin():
         return jsonify({'success': False, 'message': 'Failed to fetch video URL'}), 500
 
     return jsonify({'success': True, 'message': 'Video URL fetched successfully', 'video_url': video_url})
+
+def get_video_url(pinterest_url):
+    try:
+        response = requests.get(pinterest_url)
+        if response.status_code != 200:
+            print(f"Failed to retrieve data from Pinterest. Status code: {response.status_code}")
+            return None
+        soup = BeautifulSoup(response.content, 'html.parser')
+        video_tag = soup.find('video')
+        if video_tag:
+            video_url = video_tag['src']
+            return video_url
+        else:
+            print("No video found on this Pinterest page.")
+            return None
+    except Exception as e:
+        print(f"Error: {str(e)}")
+        return None
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=True)
