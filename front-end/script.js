@@ -92,15 +92,16 @@ downloadButton.addEventListener('click', () => {
 
 // Chắc chắn rằng DOM đã được tải xong trước khi thực thi
 document.addEventListener("DOMContentLoaded", function() {
-    const videoUrlInput = document.getElementById('video-url');
-    const downloadButton = document.getElementById('download-btn');
+    const pinUrlInput = document.getElementById('pin-url');
+    const downloadButton = document.getElementById('download-btn'); // Ensure this ID exists in your HTML
+    const pinInfoDiv = document.getElementById('pin-info');
     const loader = document.getElementById('loader');
     const message = document.getElementById('message');
-    const downloadContainer = document.getElementById('download-container');
-    const downloadVideoBtn = document.getElementById('download-video-btn');
+    const videoUrlInput = document.getElementById('video-url');
 
+    // Check if downloadButton exists
     if (downloadButton) {
-        downloadButton.addEventListener('click', function() {
+        downloadButton.addEventListener('click', () => {
             const url = videoUrlInput.value.trim();
             if (!url) {
                 message.innerHTML = "Please enter a valid video URL!";
