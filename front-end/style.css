@@ -31,10 +31,8 @@ body {
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     padding: 20px;
-    max-width: 800px;
+    max-width: 400px;
     width: 90%;
-    margin: 0 auto;
-    text-align: center;
 }
 
 /* Header styling */
@@ -56,7 +54,6 @@ header p {
     flex-direction: column;
     align-items: center;
     gap: 10px;
-    margin-bottom: 20px;
 }
 
 input {
@@ -94,13 +91,13 @@ button:hover {
     display: none;
     color: #fff;
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 1.2rem;
 }
 
 /* Hiển thị thông báo hoàn thành hoặc lỗi */
 #message {
     margin-top: 20px;
-    font-size: 18px;
+    font-size: 1.2rem;
     font-weight: bold;
 }
 
@@ -164,26 +161,4 @@ footer a {
 
 footer a:hover {
     text-decoration: underline;
-}
-
-#video-url {
-    width: 70%;
-    padding: 10px;
-    font-size: 16px;
-}
-
-#download-btn {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-}
-
-#download-container {
-    margin-top: 20px;
-}
-
-#download-video-btn {
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
 }

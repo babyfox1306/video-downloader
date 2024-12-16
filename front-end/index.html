@@ -25,15 +25,53 @@
             </div>
             <div id="loader" style="display: none;">Loading...</div>
             <div id="message"></div>
-            <div id="download-container" style="display: none;">
-                <button id="download-video-btn">Download Video</button>
-            </div>
         </main>
         <footer>
             <p>&copy; 2024 Video Downloader | <a href="mailto:support@videodownloader.com">Contact us</a></p>
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById("download-btn").addEventListener("click", function() {
+            var url = document.getElementById("video-url").value;
+            var loader = document.getElementById("loader");
+            var message = document.getElementById("message");
+
+            // Kiểm tra URL hợp lệ
+            if (!url) {
+                message.innerHTML = "Please enter a valid video URL!";
+                message.style.color = "red";
+                return;
+            }
+
+            // Hiển thị loader khi bắt đầu tải
+            loader.style.display = "block";
+            message.innerHTML = "";  // Xóa thông báo lỗi cũ
+
+            fetch("https://video-downloader-38i3.onrender.com/api/video", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ "url": url })
+            })
+            .then(response => {
+                if (response.ok) {
+                    loader.style.display = "none";
+                    message.innerHTML = "Download complete!";
+                    message.style.color = "green";
+                } else {
+                    loader.style.display = "none";
+                    message.innerHTML = "Failed to download. Please try again!";
+                    message.style.color = "red";
+                }
+            })
+            .catch(error => {
+                loader.style.display = "none";
+                message.innerHTML = "Error: " + error.message;
+                message.style.color = "red";
+            });
+        });
+    </script>
 </body>
 </html>
