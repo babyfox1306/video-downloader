@@ -92,78 +92,68 @@ downloadButton.addEventListener('click', () => {
 
 // Chắc chắn rằng DOM đã được tải xong trước khi thực thi
 document.addEventListener("DOMContentLoaded", function() {
+    const videoUrlInput = document.getElementById('video-url');
+    const downloadButton = document.getElementById('download-btn');
+    const loader = document.getElementById('loader');
+    const message = document.getElementById('message');
+    const downloadContainer = document.getElementById('download-container');
+    const downloadVideoBtn = document.getElementById('download-video-btn');
+
     // Kiểm tra nút tải có tồn tại không
     if (downloadButton) {
         downloadButton.addEventListener('click', function() {
-            const videoUrl = videoUrlInput.value.trim();
+            const url = videoUrlInput.value.trim();
             
             // Kiểm tra nếu URL trống
-            if (!videoUrl) {
-                alert('Please enter a video URL.');
+            if (!url) {
+                message.innerHTML = "Please enter a valid video URL!";
+                message.style.color = "red";
                 return;
             }
             
-            // Xử lý tải video
-            downloadVideo(videoUrl);
+            // Hiển thị loader khi bắt đầu tải
+            loader.style.display = "block";
+            message.innerHTML = "";  // Xóa thông báo lỗi cũ
+            downloadContainer.style.display = "none";  // Ẩn nút tải video
+
+            fetch("https://video-downloader-38i3.onrender.com/api/video", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ "url": url })
+            })
+            .then(response => response.json())
+            .then(data => {
+                loader.style.display = "none";
+                
+                // Kiểm tra nếu video tải thành công
+                if (data.file_url) {
+                    message.innerHTML = "Download complete!";
+                    message.style.color = "green";
+                    
+                    // Hiển thị nút tải video
+                    downloadContainer.style.display = "block";
+                    downloadVideoBtn.onclick = function() {
+                        const link = document.createElement("a");
+                        link.href = data.file_url; // Đảm bảo server trả về file URL
+                        link.download = data.file_name; // Đặt tên file tự động
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    };
+                } else {
+                    message.innerHTML = "Failed to download. Please try again!";
+                    message.style.color = "red";
+                }
+            })
+            .catch(error => {
+                loader.style.display = "none";
+                message.innerHTML = "Error: " + error.message;
+                message.style.color = "red";
+            });
         });
     } else {
         console.error("Download button not found.");
     }
-});
-
-document.getElementById("download-btn").addEventListener("click", function() {
-    var url = document.getElementById("video-url").value;
-    var loader = document.getElementById("loader");
-    var message = document.getElementById("message");
-    var downloadContainer = document.getElementById("download-container");
-    var downloadVideoBtn = document.getElementById("download-video-btn");
-
-    // Kiểm tra URL hợp lệ
-    if (!url) {
-        message.innerHTML = "Please enter a valid video URL!";
-        message.style.color = "red";
-        return;
-    }
-
-    // Hiển thị loader khi bắt đầu tải
-    loader.style.display = "block";
-    message.innerHTML = "";  // Xóa thông báo lỗi cũ
-    downloadContainer.style.display = "none";  // Ẩn nút tải video
-
-    fetch("https://video-downloader-38i3.onrender.com/api/video", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ "url": url })
-    })
-    .then(response => response.json())
-    .then(data => {
-        loader.style.display = "none";
-        
-        // Kiểm tra nếu video tải thành công
-        if (data.file_url) {
-            message.innerHTML = "Download complete!";
-            message.style.color = "green";
-            
-            // Hiển thị nút tải video
-            downloadContainer.style.display = "block";
-            downloadVideoBtn.onclick = function() {
-                const link = document.createElement("a");
-                link.href = data.file_url; // Đảm bảo server trả về file URL
-                link.download = data.file_name; // Đặt tên file tự động
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            };
-        } else {
-            message.innerHTML = "Failed to download. Please try again!";
-            message.style.color = "red";
-        }
-    })
-    .catch(error => {
-        loader.style.display = "none";
-        message.innerHTML = "Error: " + error.message;
-        message.style.color = "red";
-    });
 });
