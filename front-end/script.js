@@ -98,10 +98,12 @@ document.addEventListener("DOMContentLoaded", function() {
     const loader = document.getElementById('loader');
     const message = document.getElementById('message');
     const videoUrlInput = document.getElementById('video-url');
+    const downloadContainer = document.getElementById('download-container');
+    const downloadVideoBtn = document.getElementById('download-video-btn');
 
     // Check if downloadButton exists
     if (downloadButton) {
-        downloadButton.addEventListener('click', () => {
+        downloadButton.addEventListener('click', function() {
             const url = videoUrlInput.value.trim();
             if (!url) {
                 message.innerHTML = "Please enter a valid video URL!";
