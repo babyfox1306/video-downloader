@@ -99,45 +99,35 @@ document.addEventListener("DOMContentLoaded", function() {
     const downloadContainer = document.getElementById('download-container');
     const downloadVideoBtn = document.getElementById('download-video-btn');
 
-    // Check if downloadButton exists
     if (downloadButton) {
         downloadButton.addEventListener('click', function() {
             const url = videoUrlInput.value.trim();
-            
-            // Check if URL is empty
             if (!url) {
                 message.innerHTML = "Please enter a valid video URL!";
                 message.style.color = "red";
                 return;
             }
-            
-            // Show loader when starting download
+
             loader.style.display = "block";
             message.innerHTML = "";  // Clear old error message
             downloadContainer.style.display = "none";  // Hide download video button
 
             fetch("https://video-downloader-38i3.onrender.com/api/video", {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ "url": url })
             })
             .then(response => response.json())
             .then(data => {
                 loader.style.display = "none";
-                
-                // Check if video download was successful
                 if (data.file_url) {
                     message.innerHTML = "Download complete!";
                     message.style.color = "green";
-                    
-                    // Show download video button
                     downloadContainer.style.display = "block";
                     downloadVideoBtn.onclick = function() {
                         const link = document.createElement("a");
-                        link.href = data.file_url; // Ensure server returns file URL
-                        link.download = data.file_name; // Set file name automatically
+                        link.href = data.file_url;
+                        link.download = data.file_name;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
