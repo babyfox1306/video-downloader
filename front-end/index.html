@@ -25,6 +25,10 @@
             </div>
             <div id="loader" style="display: none;">Loading...</div>
             <div id="message"></div>
+            <div id="download-container" style="display: none;">
+                <p id="file-name"></p>
+                <a id="download-link" href="#" download>Download File</a>
+            </div>
         </main>
         <footer>
             <p>&copy; 2024 Video Downloader | <a href="mailto:support@videodownloader.com">Contact us</a></p>
@@ -36,6 +40,9 @@
             var url = document.getElementById("video-url").value;
             var loader = document.getElementById("loader");
             var message = document.getElementById("message");
+            var downloadContainer = document.getElementById("download-container");
+            var fileNameElement = document.getElementById("file-name");
+            var downloadLink = document.getElementById("download-link");
 
             // Kiểm tra URL hợp lệ
             if (!url) {
@@ -47,21 +54,25 @@
             // Hiển thị loader khi bắt đầu tải
             loader.style.display = "block";
             message.innerHTML = "";  // Xóa thông báo lỗi cũ
+            downloadContainer.style.display = "none";
 
-            fetch("https://video-downloader-38i3.onrender.com/api/video", {
+            fetch("https://cors-anywhere.herokuapp.com/https://video-downloader-38i3.onrender.com/api/video", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({ "url": url })
             })
-            .then(response => {
-                if (response.ok) {
-                    loader.style.display = "none";
-                    message.innerHTML = "Download complete!";
+            .then(response => response.json())
+            .then(data => {
+                loader.style.display = "none";
+                if (data.file_name && data.file_path) {
+                    message.innerHTML = "Download ready!";
                     message.style.color = "green";
+                    fileNameElement.innerHTML = data.file_name;
+                    downloadLink.href = `https://video-downloader-38i3.onrender.com/api/download/${data.file_name}`;
+                    downloadContainer.style.display = "block";
                 } else {
-                    loader.style.display = "none";
                     message.innerHTML = "Failed to download. Please try again!";
                     message.style.color = "red";
                 }
