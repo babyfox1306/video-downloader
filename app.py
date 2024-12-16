@@ -2,12 +2,12 @@ import os
 import subprocess
 import requests
 from bs4 import BeautifulSoup
-from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS
+from flask import Flask, request, jsonify, send_from_directory
+from flask_cors import CORS
 import yt_dlp
 
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": "https://profound-sfogliatella-20b8c7.netlify.app"}})  # Enable CORS for specific routes
+CORS(app, resources={r"/api/*": {"origins": "https://profound-sfogliatella-20b8c7.netlify.app"}})
 
 # Kiểm tra và tạo thư mục nếu chưa tồn tại
 if not os.path.exists('downloads'):
@@ -17,7 +17,6 @@ if not os.path.exists('downloads'):
 def home():
     return "Welcome to the Flask API!"
 
-# API endpoint để nhận URL video và tải video
 @app.route("/api/video", methods=["POST"])
 def download_video():
     try:
@@ -27,26 +26,30 @@ def download_video():
         if not video_url:
             return jsonify({"error": "No URL provided"}), 400
 
-        # Ghi file tạm ở Render-compatible folder
-        output_dir = os.environ.get("TMPDIR", "/tmp")  # Sử dụng Render's TMPDIR
+        output_dir = os.environ.get("TMPDIR", "/tmp")
         ydl_opts = {
-            'format': 'bestvideo+bestaudio/best',  # Change format to bestvideo+bestaudio or best
+            'format': 'bestvideo+bestaudio/best',
             'outtmpl': f"{output_dir}/%(title)s.%(ext)s",
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             filename = ydl.prepare_filename(info)
+            file_url = f"/downloads/{os.path.basename(filename)}"
             return jsonify({
                 "message": "Download successful",
-                "filename": filename,
-                "title": info.get("title")
+                "file_url": file_url,
+                "file_name": os.path.basename(filename)
             }), 200
 
     except yt_dlp.DownloadError as e:
         return jsonify({"error": f"Download failed: {str(e)}"}), 500
     except Exception as e:
         return jsonify({"error": f"Internal error: {str(e)}"}), 500
+
+@app.route('/downloads/<path:filename>', methods=['GET'])
+def download_file(filename):
+    return send_from_directory(os.environ.get("TMPDIR", "/tmp"), filename)
 
 def get_video_url(pinterest_url):
     try:
