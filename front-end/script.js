@@ -4,6 +4,7 @@ const downloadButton = document.getElementById('download-button');
 const pinInfoDiv = document.getElementById('pin-info');
 const loader = document.getElementById('loader');
 const message = document.getElementById('message');
+const videoUrlInput = document.getElementById('video-url');
 
 // Hàm kiểm tra URL Pinterest
 function validatePinterestUrl(url) {
@@ -94,7 +95,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Kiểm tra nút tải có tồn tại không
     if (downloadButton) {
         downloadButton.addEventListener('click', function() {
-            const videoUrl = document.getElementById('video-url').value;
+            const videoUrl = videoUrlInput.value.trim();
             
             // Kiểm tra nếu URL trống
             if (!videoUrl) {
