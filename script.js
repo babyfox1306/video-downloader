@@ -2,6 +2,9 @@
 const pinUrlInput = document.getElementById('pin-url');
 const downloadButton = document.getElementById('download-button');
 const pinInfoDiv = document.getElementById('pin-info');
+const loader = document.getElementById('loader');
+const message = document.getElementById('message');
+const videoUrlInput = document.getElementById('video-url');
 
 // Hàm kiểm tra URL Pinterest
 function validatePinterestUrl(url) {
@@ -18,7 +21,6 @@ async function fetchPinData(url) {
 
         pinInfoDiv.innerHTML = '<p>Fetching data...</p>';
 
-        // Gọi API hoặc xử lý tải từ mã nguồn mở
         const response = await fetch('/download-pin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -41,28 +43,40 @@ async function fetchPinData(url) {
     }
 }
 
-// Hàm lấy thông tin video từ URL
-async function fetchVideoData(url) {
+// Hàm tải video
+async function downloadVideo(url) {
+    loader.style.display = "block";
+    message.innerHTML = "";  // Xóa thông báo lỗi cũ
+
     try {
-        const response = await fetch('https://video-downloader-38i3.onrender.com/api/video', {  // URL từ Render
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ url: url }),  // Gửi URL video từ Pinterest
+        const response = await fetch("https://video-downloader-38i3.onrender.com/api/video", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url })
         });
-
         const data = await response.json();
-        console.log('Video download response:', data); // Kiểm tra phản hồi từ server
 
-        if (data.message) {
-            alert(data.message);  // Hiển thị thông báo nếu tải thành công
-        } else if (data.error) {
-            alert('Error: ' + data.error);  // Hiển thị lỗi nếu có
+        loader.style.display = "none";
+
+        if (data.file_url) {
+            message.innerHTML = "Download complete!";
+            message.style.color = "green";
+
+            // Tạo liên kết tải về tự động
+            const link = document.createElement("a");
+            link.href = data.file_url; // Đảm bảo server trả về file URL
+            link.download = data.file_name; // Đặt tên file tự động
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } else {
+            message.innerHTML = "Failed to download. Please try again!";
+            message.style.color = "red";
         }
-
     } catch (error) {
-        console.error('Error fetching data:', error);
+        loader.style.display = "none";
+        message.innerHTML = "Error: " + error.message;
+        message.style.color = "red";
     }
 }
 
@@ -78,42 +92,57 @@ downloadButton.addEventListener('click', () => {
 
 // Chắc chắn rằng DOM đã được tải xong trước khi thực thi
 document.addEventListener("DOMContentLoaded", function() {
+    const videoUrlInput = document.getElementById('video-url');
     const downloadButton = document.getElementById('download-btn');
+    const loader = document.getElementById('loader');
+    const message = document.getElementById('message');
+    const downloadContainer = document.getElementById('download-container');
+    const downloadVideoBtn = document.getElementById('download-video-btn');
 
-    // Kiểm tra nút tải có tồn tại không
+    // Check if downloadButton exists
     if (downloadButton) {
         downloadButton.addEventListener('click', function() {
-            const videoUrl = document.getElementById('video-url').value;
+            const url = videoUrlInput.value.trim();
             
-            // Kiểm tra nếu URL trống
-            if (!videoUrl) {
-                alert('Please enter a video URL.');
+            // Check if URL is empty
+            if (!url) {
+                message.innerHTML = "Please enter a valid video URL!";
+                message.style.color = "red";
                 return;
             }
             
-            // Xử lý tải video
-            console.log(`Downloading from: ${videoUrl}`);
-            
-            // Hiển thị loader khi bắt đầu tải
-            const loader = document.getElementById('loader');
-            const message = document.getElementById('message');
+            // Show loader when starting download
             loader.style.display = "block";
-            message.innerHTML = "";  // Xóa thông báo lỗi cũ
+            message.innerHTML = "";  // Clear old error message
+            downloadContainer.style.display = "none";  // Hide download video button
 
-            fetch("http://127.0.0.1:5000/api/video", {
+            fetch("https://video-downloader-38i3.onrender.com/api/video", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ "url": videoUrl })
+                body: JSON.stringify({ "url": url })
             })
-            .then(response => {
-                if (response.ok) {
-                    loader.style.display = "none";
+            .then(response => response.json())
+            .then(data => {
+                loader.style.display = "none";
+                
+                // Check if video download was successful
+                if (data.file_url) {
                     message.innerHTML = "Download complete!";
                     message.style.color = "green";
+                    
+                    // Show download video button
+                    downloadContainer.style.display = "block";
+                    downloadVideoBtn.onclick = function() {
+                        const link = document.createElement("a");
+                        link.href = data.file_url; // Ensure server returns file URL
+                        link.download = data.file_name; // Set file name automatically
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    };
                 } else {
-                    loader.style.display = "none";
                     message.innerHTML = "Failed to download. Please try again!";
                     message.style.color = "red";
                 }
@@ -127,55 +156,4 @@ document.addEventListener("DOMContentLoaded", function() {
     } else {
         console.error("Download button not found.");
     }
-});
-
-document.getElementById("download-btn").addEventListener("click", function() {
-    var url = document.getElementById("video-url").value;
-    var loader = document.getElementById("loader");
-    var message = document.getElementById("message");
-
-    // Kiểm tra URL hợp lệ
-    if (!url) {
-        message.innerHTML = "Please enter a valid video URL!";
-        message.style.color = "red";
-        return;
-    }
-
-    // Hiển thị loader khi bắt đầu tải
-    loader.style.display = "block";
-    message.innerHTML = "";  // Xóa thông báo lỗi cũ
-
-    fetch("https://video-downloader-38i3.onrender.com/api/video", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ "url": url })
-    })
-    .then(response => response.json())
-    .then(data => {
-        loader.style.display = "none";
-        
-        // Kiểm tra nếu video tải thành công
-        if (data.message) {
-            message.innerHTML = "Download complete!";
-            message.style.color = "green";
-            
-            // Tạo liên kết tải về tự động
-            const link = document.createElement("a");
-            link.href = data.file_url; // Đảm bảo server trả về file URL
-            link.download = data.file_name; // Đặt tên file tự động
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } else {
-            message.innerHTML = "Failed to download. Please try again!";
-            message.style.color = "red";
-        }
-    })
-    .catch(error => {
-        loader.style.display = "none";
-        message.innerHTML = "Error: " + error.message;
-        message.style.color = "red";
-    });
 });
