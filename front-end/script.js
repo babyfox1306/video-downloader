@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", function () {
         message.innerHTML = "";  // Xóa thông báo lỗi cũ
 
         try {
-            const response = await fetch("https://video-downloader-38i3.onrender.com/api/video", {
+            const response = await fetch("https://cors-anywhere.herokuapp.com/https://video-downloader-38i3.onrender.com/api/video", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ url })
