@@ -30,7 +30,7 @@ def download_video():
         # Ghi file tạm ở Render-compatible folder
         output_dir = os.environ.get("TMPDIR", "/tmp")  # Sử dụng Render's TMPDIR
         ydl_opts = {
-            'format': 'best',
+            'format': 'bestvideo+bestaudio/best',  # Change format to bestvideo+bestaudio or best
             'outtmpl': f"{output_dir}/%(title)s.%(ext)s",
         }
 
