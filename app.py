@@ -40,9 +40,10 @@ def download_video():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             file_name = ydl.prepare_filename(info)
+            file_name = os.path.basename(file_name.strip())  # Loại bỏ khoảng trắng
 
         # Return downloaded file information
-        return jsonify({"file_name": os.path.basename(file_name), "file_path": file_name}), 200
+        return jsonify({"file_name": file_name, "file_path": file_name}), 200
 
     except yt_dlp.utils.DownloadError as e:
         logging.error(f"Download error: {e}")
@@ -54,6 +55,9 @@ def download_video():
 @app.route("/api/download/<filename>", methods=["GET"])
 def download_file(filename):
     try:
+        file_path = os.path.join(DOWNLOAD_DIR, filename)
+        if not os.path.exists(file_path):
+            return jsonify({"error": "File not found"}), 404
         # Send file from download directory
         return send_from_directory(DOWNLOAD_DIR, filename, as_attachment=True)
     except Exception as e:
