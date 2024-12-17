@@ -18,6 +18,10 @@
                 <button id="download-btn">Download</button>
             </div>
             <div id="loader" style="display: none;">Loading...</div>
+            <div id="progress-container" style="display: none;">
+                <label for="progress">Downloading...</label>
+                <progress id="progress" value="0" max="100"></progress>
+            </div>
             <div id="message"></div>
             <div id="download-container" style="display: none;">
                 <p id="file-name"></p>
@@ -34,6 +38,8 @@
             const url = document.getElementById("video-url").value;
             const loader = document.getElementById("loader");
             const message = document.getElementById("message");
+            const progressBar = document.getElementById("progress");
+            const progressContainer = document.getElementById("progress-container");
             const downloadContainer = document.getElementById("download-container");
             const fileNameElement = document.getElementById("file-name");
             const downloadLink = document.getElementById("download-link");
@@ -42,45 +48,62 @@
             loader.style.display = "none";
             message.innerHTML = "";
             downloadContainer.style.display = "none";
+            progressContainer.style.display = "block";
+            progressBar.value = 0;
 
             // Validate URL
             if (!url) {
+                progressContainer.style.display = "none";
                 message.innerHTML = "Please enter a valid video URL!";
                 message.style.color = "red";
                 return;
             }
 
-            // Show loading spinner
-            loader.style.display = "block";
+            // Create XMLHttpRequest to track progress
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://video-downloader-38i3.onrender.com/api/video", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
 
-            // Call backend to download video
-            fetch("https://video-downloader-38i3.onrender.com/api/video", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url: url })
-            })
-            .then(response => response.json())
-            .then(data => {
-                loader.style.display = "none";
-
-                if (data.file_name && data.file_path) {
-                    // Show download information
-                    message.innerHTML = "Download ready!";
-                    message.style.color = "green";
-
-                    const encodedFileName = encodeURIComponent(data.file_name); // Encode filename
-                    fileNameElement.innerHTML = `File: ${data.file_name}`;
-                    downloadLink.href = `https://video-downloader-38i3.onrender.com/api/download/${encodedFileName}`;
-                    downloadContainer.style.display = "block";
-                } else {
-                    throw new Error(data.error || "Failed to process the video.");
+            // Track upload progress
+            xhr.upload.onprogress = function (event) {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    progressBar.value = percentComplete;
                 }
-            })
-            .catch(error => {
-                loader.style.display = "none";
-                message.innerHTML = `Error: ${error.message}`;
-                message.style.color = "red";
-            });
+            };
+
+            // Handle response
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    progressContainer.style.display = "none";
+
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        message.innerHTML = "Download ready!";
+                        message.style.color = "green";
+
+                        const encodedFileName = encodeURIComponent(response.file_name);
+                        fileNameElement.innerHTML = `File: ${response.file_name}`;
+                        downloadLink.href = `https://video-downloader-38i3.onrender.com/api/download/${encodedFileName}`;
+                        downloadContainer.style.display = "block";
+
+                        // Auto download the file
+                        const link = document.createElement("a");
+                        link.href = downloadLink.href;
+                        link.download = response.file_name;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        message.innerHTML = `Error: ${errorResponse.error || "Failed to download video."}`;
+                        message.style.color = "red";
+                    }
+                }
+            };
+
+            // Send request with video URL
+            xhr.send(JSON.stringify({ url: url }));
         });
     </script>
 </body>
