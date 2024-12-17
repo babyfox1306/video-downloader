@@ -10,11 +10,11 @@
     <div class="container">
         <header>
             <h1>Video Downloader</h1>
-            <p>Easily download videos from Pinterest, YouTube, TikTok, and Vimeo!</p>
+            <p>Download videos from Pinterest, YouTube, TikTok, and more!</p>
         </header>
         <main>
             <div class="input-container">
-                <input type="text" id="video-url" placeholder="Enter video link here…">
+                <input type="text" id="video-url" placeholder="Enter video URL">
                 <button id="download-btn">Download</button>
             </div>
             <div class="logos">
@@ -31,55 +31,56 @@
             </div>
         </main>
         <footer>
-            <p>&copy; 2024 Video Downloader | <a href="mailto:support@videodownloader.com">Contact us</a></p>
+            <p>&copy; 2024 Video Downloader</p>
         </footer>
     </div>
 
     <script>
         document.getElementById("download-btn").addEventListener("click", function() {
-            var url = document.getElementById("video-url").value;
-            var loader = document.getElementById("loader");
-            var message = document.getElementById("message");
-            var downloadContainer = document.getElementById("download-container");
-            var fileNameElement = document.getElementById("file-name");
-            var downloadLink = document.getElementById("download-link");
+            const url = document.getElementById("video-url").value.trim();
+            const loader = document.getElementById("loader");
+            const message = document.getElementById("message");
+            const downloadContainer = document.getElementById("download-container");
+            const fileNameElement = document.getElementById("file-name");
+            const downloadLink = document.getElementById("download-link");
 
-            // Kiểm tra URL hợp lệ
+            // Reset trạng thái
+            loader.style.display = "block";
+            message.innerHTML = "";
+            downloadContainer.style.display = "none";
+
             if (!url) {
+                loader.style.display = "none";
                 message.innerHTML = "Please enter a valid video URL!";
                 message.style.color = "red";
                 return;
             }
-
-            // Hiển thị loader khi bắt đầu tải
-            loader.style.display = "block";
-            message.innerHTML = "";  // Xóa thông báo lỗi cũ
-            downloadContainer.style.display = "none";
 
             fetch("https://video-downloader-38i3.onrender.com/api/video", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({ "url": url })
+                body: JSON.stringify({ url: url })
             })
-            .then(response => response.json())
-            .then(data => {
+            .then(response => {
                 loader.style.display = "none";
+                return response.json();
+            })
+            .then(data => {
                 if (data.file_name && data.file_path) {
                     message.innerHTML = "Download ready!";
                     message.style.color = "green";
-                    fileNameElement.innerHTML = data.file_name;
+                    fileNameElement.innerHTML = `File: ${data.file_name}`;
                     downloadLink.href = `https://video-downloader-38i3.onrender.com/api/download/${data.file_name}`;
                     downloadContainer.style.display = "block";
                 } else {
-                    message.innerHTML = "Failed to download. Please try again!";
-                    message.style.color = "red";
+                    throw new Error(data.error || "Failed to process the video.");
                 }
             })
             .catch(error => {
                 loader.style.display = "none";
-                message.innerHTML = "Error: " + error.message;
+                message.innerHTML = `Error: ${error.message}`;
                 message.style.color = "red";
             });
         });
