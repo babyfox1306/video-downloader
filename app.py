@@ -40,11 +40,10 @@ def download_video():
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(video_url, download=True)
             file_name = ydl.prepare_filename(info)
-            file_name = os.path.basename(file_name.strip())  # Clean filename
+            file_name = os.path.basename(file_name.strip())  # Loại bỏ khoảng trắng
 
-        # Return only file link to frontend
-        file_link = f"https://your-website.com/api/download/{file_name}"
-        return jsonify({"file_name": file_name, "file_link": file_link}), 200
+        # Return downloaded file information
+        return jsonify({"file_name": file_name, "file_path": file_name}), 200
 
     except yt_dlp.utils.DownloadError as e:
         logging.error(f"Download error: {e}")
