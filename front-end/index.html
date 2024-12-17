@@ -3,60 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Easily download videos from Pinterest, YouTube, TikTok, Vimeo, and more! Fast, simple, and free video downloader.">
-    <meta name="keywords" content="video downloader, pinterest video, youtube video, tiktok video, vimeo downloader, download video online">
-    <meta name="author" content="Your Name or Your Company">
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="Free Video Downloader - Pinterest, YouTube, TikTok, Vimeo">
-    <meta property="og:description" content="Download videos from Pinterest, YouTube, TikTok, Vimeo, and more easily.">
-    <meta property="og:image" content="your-image-url.jpg">
-    <meta property="og:url" content="https://your-website.com">
-    <meta name="robots" content="index, follow">
-    <title>Video Downloader - Download Pinterest, YouTube, TikTok, Vimeo Videos</title>
+    <title>Video Downloader</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Video Downloader</h1>
-            <p>Download videos from Pinterest, YouTube, TikTok, Vimeo, and more, with ease!</p>
+            <p>Easily download videos from Pinterest, YouTube, TikTok, and Vimeo!</p>
         </header>
-
         <main>
-            <section class="input-section">
-                <h2>Enter the video URL</h2>
-                <input type="text" id="video-url" placeholder="Enter video link here…" aria-label="Enter video URL to download">
-                <button id="download-btn" aria-label="Click to download video">Download</button>
-            </section>
-
-            <section id="loading-section" class="loader-section" style="display: none;" aria-live="polite">
-                <div id="loader" class="loader" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-            </section>
-
-            <section id="progress-container" style="display: none;">
+            <div class="input-container">
+                <input type="text" id="video-url" placeholder="Enter video link here…">
+                <button id="download-btn">Download</button>
+            </div>
+            <div id="loader" style="display: none;">Loading...</div>
+            <div id="progress-container" style="display: none;">
                 <label for="progress">Downloading...</label>
                 <progress id="progress" value="0" max="100"></progress>
-            </section>
-
-            <section id="message-section" class="message-section">
-                <p id="message"></p>
-            </section>
-
-            <section id="download-section" class="download-section" style="display: none;">
-                <h3>Download Ready!</h3>
+            </div>
+            <div id="message"></div>
+            <div id="download-container" style="display: none;">
                 <p id="file-name"></p>
                 <a id="download-link" href="#" download>Download File</a>
-            </section>
+            </div>
         </main>
-
         <footer>
-            <p>&copy; 2024 Video Downloader. All rights reserved.</p>
+            <p>&copy; 2024 Video Downloader</p>
         </footer>
     </div>
 
-    <script src="script.js"></script>
+    <script>
+        document.getElementById("download-btn").addEventListener("click", function () {
+            const url = document.getElementById("video-url").value;
+            const loader = document.getElementById("loader");
+            const message = document.getElementById("message");
+            const progressBar = document.getElementById("progress");
+            const progressContainer = document.getElementById("progress-container");
+            const downloadContainer = document.getElementById("download-container");
+            const fileNameElement = document.getElementById("file-name");
+            const downloadLink = document.getElementById("download-link");
+
+            // Reset UI
+            loader.style.display = "none";
+            message.innerHTML = "";
+            downloadContainer.style.display = "none";
+            progressContainer.style.display = "block";
+            progressBar.value = 0;
+
+            // Validate URL
+            if (!url) {
+                progressContainer.style.display = "none";
+                message.innerHTML = "Please enter a valid video URL!";
+                message.style.color = "red";
+                return;
+            }
+
+            // Create XMLHttpRequest to track progress
+            const xhr = new XMLHttpRequest();
+            xhr.open("POST", "https://video-downloader-38i3.onrender.com/api/video", true);
+            xhr.setRequestHeader("Content-Type", "application/json");
+
+            // Track upload progress
+            xhr.upload.onprogress = function (event) {
+                if (event.lengthComputable) {
+                    const percentComplete = (event.loaded / event.total) * 100;
+                    progressBar.value = percentComplete;
+                }
+            };
+
+            // Handle response
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                    progressContainer.style.display = "none";
+
+                    if (xhr.status === 200) {
+                        const response = JSON.parse(xhr.responseText);
+                        message.innerHTML = "Download ready!";
+                        message.style.color = "green";
+
+                        const encodedFileName = encodeURIComponent(response.file_name);
+                        fileNameElement.innerHTML = `File: ${response.file_name}`;
+                        downloadLink.href = `https://video-downloader-38i3.onrender.com/api/download/${encodedFileName}`;
+                        downloadContainer.style.display = "block";
+
+                        // Auto download the file
+                        const link = document.createElement("a");
+                        link.href = downloadLink.href;
+                        link.download = response.file_name;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        const errorResponse = JSON.parse(xhr.responseText);
+                        message.innerHTML = `Error: ${errorResponse.error || "Failed to download video."}`;
+                        message.style.color = "red";
+                    }
+                }
+            };
+
+            // Send request with video URL
+            xhr.send(JSON.stringify({ url: url }));
+        });
+    </script>
 </body>
 </html>
