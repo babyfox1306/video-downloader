@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO)
 
 # Create Flask app
 app = Flask(__name__)
-CORS(app, resources={r"/api/*": {"origins": ["https://zavclip.com"]}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Create download directory if it doesn't exist
 DOWNLOAD_DIR = 'downloads'
@@ -19,18 +19,6 @@ if not os.path.exists(DOWNLOAD_DIR):
 @app.route('/')
 def home():
     return "Welcome to the Video Downloader API!"
-
-@app.route('/ads.txt')
-def ads_txt():
-    try:
-        # Path to ads.txt file
-        file_path = os.path.join(os.getcwd(), 'ads.txt')
-        if not os.path.exists(file_path):
-            return "ads.txt file not found", 404
-        # Serve ads.txt file
-        return send_from_directory(os.getcwd(), 'ads.txt')
-    except Exception as e:
-        return f"Error serving ads.txt: {str(e)}", 500
 
 @app.route("/api/video", methods=["POST"])
 def download_video():
@@ -59,10 +47,10 @@ def download_video():
 
     except yt_dlp.utils.DownloadError as e:
         logging.error(f"Download error: {e}")
-        return jsonify({"error": "Download error", "details": str(e)}), 400
+        return jsonify({"error": "Failed to download video"}), 500
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
-        return jsonify({"error": "Unexpected error", "details": str(e)}), 500
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/api/download/<filename>", methods=["GET"])
 def download_file(filename):
