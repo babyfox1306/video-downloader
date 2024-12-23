@@ -226,6 +226,14 @@
             // Send request with video URL
             xhr.send(JSON.stringify({ url: url }));
         });
+
+        document.getElementById("show-instructions").addEventListener("click", function () {
+            document.getElementById("instructions-modal").style.display = "flex";
+        });
+
+        document.getElementById("close-instructions").addEventListener("click", function () {
+            document.getElementById("instructions-modal").style.display = "none";
+        });
     </script>
 </body>
 </html>
