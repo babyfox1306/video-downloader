@@ -189,7 +189,7 @@
 
             // Create XMLHttpRequest to track progress
             const xhr = new XMLHttpRequest();
-            xhr.open("POST", "https://api.allorigins.win/raw?url=https://video-downloader-38i3.onrender.com/api/video", true);
+            xhr.open("POST", "https://api.allorigins.win/get?url=" + encodeURIComponent("https://video-downloader-38i3.onrender.com/api/video"), true);
             xhr.setRequestHeader("Content-Type", "application/json");
 
             // Track upload progress
@@ -206,24 +206,25 @@
                     progressContainer.style.display = "none";
 
                     if (xhr.status === 200) {
-                        const response = JSON.parse(xhr.responseText);
+                        const response = JSON.parse(xhr.responseText).contents;
+                        const jsonResponse = JSON.parse(response);
                         message.innerHTML = "Download ready!";
                         message.style.color = "green";
 
-                        const encodedFileName = encodeURIComponent(response.file_name);
-                        fileNameElement.innerHTML = `File: ${response.file_name}`;
+                        const encodedFileName = encodeURIComponent(jsonResponse.file_name);
+                        fileNameElement.innerHTML = `File: ${jsonResponse.file_name}`;
                         downloadLink.href = `https://video-downloader-38i3.onrender.com/api/download/${encodedFileName}`;
                         downloadContainer.style.display = "block";
 
                         // Auto download the file
                         const link = document.createElement("a");
                         link.href = downloadLink.href;
-                        link.download = response.file_name;
+                        link.download = jsonResponse.file_name;
                         document.body.appendChild(link);
                         link.click();
                         document.body.removeChild(link);
                     } else {
-                        const errorResponse = JSON.parse(xhr.responseText);
+                        const errorResponse = JSON.parse(xhr.responseText).contents;
                         message.innerHTML = `Error: ${errorResponse.error || "Failed to download video."}`;
                         message.style.color = "red";
                     }
