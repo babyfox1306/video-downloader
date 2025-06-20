@@ -70,27 +70,24 @@ document.addEventListener("DOMContentLoaded", function () {
 
             loader.style.display = "none";
 
-            if (data.file_url) {
-                message.innerHTML = "Download complete! Click the button below to download.";
+            if (data.success && data.file_url) {
+                message.innerHTML = "Download ready! Click the button below.";
                 message.style.color = "green";
                 
-                // Hiển thị nút download
                 downloadContainer.style.display = "block";
                 
                 // Cập nhật link download
-                downloadVideoBtn.onclick = function() {
-                    const link = document.createElement("a");
-                    link.href = data.file_url;
-                    link.download = data.file_name || "video.mp4";
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                };
-            } else if (data.error) {
-                message.innerHTML = "Error: " + data.error;
-                message.style.color = "red";
+                downloadVideoBtn.href = data.file_url;
+                downloadVideoBtn.setAttribute('download', data.file_name || 'pinterest_video.mp4');
+                
+                // Loại bỏ sự kiện onclick cũ để tránh xung đột
+                downloadVideoBtn.onclick = null; 
+
+                // Gợi ý: Có thể tự động click để tải ngay
+                // downloadVideoBtn.click();
+
             } else {
-                message.innerHTML = "Failed to download. Please try again!";
+                message.innerHTML = "Error: " + (data.details || data.error || "Unknown error");
                 message.style.color = "red";
             }
         } catch (error) {

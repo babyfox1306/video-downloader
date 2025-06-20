@@ -4,6 +4,7 @@ import re
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import yt_dlp
+import requests
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -72,125 +73,68 @@ def download_video():
         if not video_url:
             return jsonify({"error": "No URL provided"}), 400
 
-        # Clean URL if it's from Pinterest
+        # SỬ DỤNG API TRUNG GIAN CHO PINTEREST
         if is_pinterest_url(video_url):
-            video_url = clean_pinterest_url(video_url)
-
-        logging.info(f"Processing URL: {video_url}")
-
-        # Pinterest-specific configuration - THỬ NHIỀU CÁCH
-        if is_pinterest_url(video_url):
-            logging.info("Detected Pinterest URL")
+            logging.info(f"Using third-party API for Pinterest URL: {video_url}")
             
-            # Thử nhiều config khác nhau
-            configs = [
-                {
-                    'format': 'best[ext=mp4]/best[ext=webm]/best',
-                    'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
-                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'no_warnings': True,
-                    'quiet': True,
-                    'no_check_certificate': True,
-                    'ignoreerrors': False,
-                    'nocheckcertificate': True,
-                    'prefer_ffmpeg': True,
-                    'geo_bypass': True,
-                    'geo_bypass_country': 'US',
-                    'http_headers': {
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-                        'Accept-Language': 'en-US,en;q=0.9',
-                        'Accept-Encoding': 'gzip, deflate, br',
-                        'DNT': '1',
-                        'Connection': 'keep-alive',
-                        'Upgrade-Insecure-Requests': '1',
-                        'Sec-Fetch-Dest': 'document',
-                        'Sec-Fetch-Mode': 'navigate',
-                        'Sec-Fetch-Site': 'none',
-                        'Sec-Fetch-User': '?1',
-                        'Cache-Control': 'max-age=0',
-                    },
-                    'cookies': {
-                        'csrftoken': 'dummy_token',
-                        'sessionid': 'dummy_session',
-                        '_auth': '0',
-                    }
-                },
-                {
-                    'format': 'best',
-                    'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
-                    'user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'no_warnings': True,
-                    'quiet': True,
-                    'http_headers': {
-                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                        'Accept-Language': 'en-US,en;q=0.5',
-                        'Accept-Encoding': 'gzip, deflate',
-                        'Connection': 'keep-alive',
-                    }
-                }
-            ]
+            # Gọi API từ RapidAPI
+            api_url = "https://pinterest-downloader.p.rapidapi.com/download"
+            querystring = {"url": video_url}
+            headers = {
+                "x-rapidapi-key": os.environ.get("RAPIDAPI_KEY"), # Lấy key từ biến môi trường
+                "x-rapidapi-host": "pinterest-downloader.p.rapidapi.com"
+            }
+
+            # Kiểm tra xem có API Key không
+            if not headers["x-rapidapi-key"]:
+                logging.error("RAPIDAPI_KEY is not set in environment variables.")
+                return jsonify({"error": "Server configuration error: Missing API Key"}), 500
+
+            response = requests.get(api_url, headers=headers, params=querystring)
+            response.raise_for_status() # Ném lỗi nếu request thất bại (4xx, 5xx)
             
-            # Thử từng config cho đến khi thành công
-            for i, ydl_opts in enumerate(configs):
-                try:
-                    logging.info(f"Trying config {i+1}...")
-                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                        info = ydl.extract_info(video_url, download=True)
-                        file_name = ydl.prepare_filename(info)
-                        file_name = os.path.basename(file_name.strip())
-                        file_name = clean_filename(file_name)
-                        logging.info(f"Download completed with config {i+1}: {file_name}")
-                        break
-                except Exception as e:
-                    logging.error(f"Config {i+1} failed: {e}")
-                    if i == len(configs) - 1:  # Nếu là config cuối cùng
-                        raise e
-                    continue
+            api_data = response.json()
+            logging.info(f"Third-party API response: {api_data}")
+
+            # Lấy link video từ kết quả API
+            media_url = api_data.get("data", {}).get("video_url")
+
+            if media_url:
+                # Trả về link trực tiếp cho frontend
+                return jsonify({
+                    "success": True,
+                    "file_url": media_url,
+                    "file_name": "pinterest_video.mp4" # Đặt tên file mặc định
+                })
+            else:
+                raise Exception("Could not find video URL in third-party API response")
+
+        # Giữ lại yt-dlp cho các nền tảng khác
         else:
-            # Default for other platforms
+            logging.info(f"Using yt-dlp for URL: {video_url}")
             ydl_opts = {
                 'format': 'bestvideo+bestaudio/best',
                 'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             }
-            
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                logging.info("Starting download...")
                 info = ydl.extract_info(video_url, download=True)
                 file_name = ydl.prepare_filename(info)
                 file_name = os.path.basename(file_name.strip())
                 file_name = clean_filename(file_name)
-                logging.info(f"Download completed: {file_name}")
+                
+                return jsonify({
+                    "file_name": file_name, 
+                    "file_url": f"/api/download/{file_name}",
+                    "success": True
+                }), 200
 
-        # Return downloaded file information
-        response = jsonify({
-            "file_name": file_name, 
-            "file_url": f"/api/download/{file_name}",
-            "success": True
-        })
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response, 200
-
-    except yt_dlp.utils.DownloadError as e:
-        logging.error(f"Download error: {e}")
-        response = jsonify({
-            "error": "Download failed", 
-            "details": str(e),
-            "success": False
-        })
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response, 400
+    except requests.exceptions.HTTPError as e:
+        logging.error(f"Third-party API request failed: {e}")
+        return jsonify({"error": "Failed to fetch from third-party API", "details": str(e), "success": False}), 502
     except Exception as e:
         logging.error(f"Unexpected error: {e}")
-        response = jsonify({
-            "error": "Server error", 
-            "details": str(e),
-            "success": False
-        })
-        response.headers.add('Access-Control-Allow-Origin', '*')
-        return response, 500
+        return jsonify({"error": "Server error", "details": str(e), "success": False}), 500
 
 @app.route("/api/download/<filename>", methods=["GET"])
 def download_file(filename):
