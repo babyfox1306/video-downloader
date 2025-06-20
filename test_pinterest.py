@@ -3,9 +3,11 @@ import json
 from bs4 import BeautifulSoup
 import re
 
-def test_pinterest_scraping():
-    # Test URL Pinterest video thật
-    test_url = "https://www.pinterest.com/pin/1234567890123456789/"
+def test_pinterest_scraping(test_url=None):
+    if not test_url:
+        # URL mẫu - bạn có thể thay đổi URL này
+        test_url = "https://www.pinterest.com/pin/1234567890123456789/"
+        print("⚠️  Using sample URL. Please provide a real Pinterest video URL for testing!")
     
     print("🔍 Testing Pinterest scraping logic...")
     print(f"URL: {test_url}")
@@ -22,7 +24,7 @@ def test_pinterest_scraping():
     try:
         # 1. Lấy HTML từ Pinterest
         print("📡 Fetching page...")
-        response = requests.get(test_url, headers=headers)
+        response = requests.get(test_url, headers=headers, timeout=30)
         response.raise_for_status()
         
         print(f"Status Code: {response.status_code}")
@@ -42,15 +44,21 @@ def test_pinterest_scraping():
             
             # 4. Trích xuất video URL
             print("🎬 Extracting video URL...")
-            video_list = json_data['resourceResponses'][0]['response']['data']['videos']['video_list']
-            best_video = video_list.get('V_EXP7', video_list.get('V_720P', video_list.get('V_HLSV4', {})))
-            media_url = best_video.get('url')
-            
-            if media_url:
-                print(f"✅ SUCCESS! Video URL: {media_url}")
-                return True
-            else:
-                print("❌ No video URL found in data")
+            try:
+                video_list = json_data['resourceResponses'][0]['response']['data']['videos']['video_list']
+                best_video = video_list.get('V_EXP7', video_list.get('V_720P', video_list.get('V_HLSV4', {})))
+                media_url = best_video.get('url')
+                
+                if media_url:
+                    print(f"✅ SUCCESS! Video URL: {media_url}")
+                    return True
+                else:
+                    print("❌ No video URL found in data")
+                    print("Available video formats:", list(video_list.keys()))
+                    return False
+            except (KeyError, IndexError) as e:
+                print(f"❌ Error extracting video data: {e}")
+                print("JSON structure might be different than expected")
                 return False
         else:
             print("❌ Could not find data script")
@@ -61,11 +69,24 @@ def test_pinterest_scraping():
                 print(f"Script {i}: {script.get('id', 'No ID')} - {script.get('type', 'No type')}")
             return False
             
+    except requests.exceptions.Timeout:
+        print("❌ Request timed out")
+        return False
+    except requests.exceptions.HTTPError as e:
+        print(f"❌ HTTP Error: {e}")
+        return False
     except Exception as e:
         print(f"❌ Error: {e}")
         return False
 
 if __name__ == "__main__":
-    print("⚠️  Please provide a real Pinterest video URL to test!")
-    print("You can update the test_url variable in this script with a real Pinterest video URL.")
-    test_pinterest_scraping() 
+    # Bạn có thể thay đổi URL này để test với URL Pinterest video thật
+    test_url = "https://www.pinterest.com/pin/1234567890123456789/"
+    
+    print("🎯 Pinterest Video Scraper Test")
+    print("=" * 40)
+    print("Để test với URL thật, hãy thay đổi biến test_url trong script này")
+    print("hoặc gọi hàm: test_pinterest_scraping('URL_PINTEREST_CỦA_BẠN')")
+    print("=" * 40)
+    
+    test_pinterest_scraping(test_url) 

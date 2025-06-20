@@ -2,11 +2,13 @@ import os
 import logging
 import re
 import json
+import asyncio
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import requests
 from bs4 import BeautifulSoup
 import yt_dlp
+from playwright.async_api import async_playwright
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -57,6 +59,126 @@ def clean_filename(filename):
         filename = filename[:100]
     return filename
 
+# Advanced Pinterest video extraction using Playwright
+async def extract_pinterest_video(pin_url):
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        context = await browser.new_context()
+        page = await context.new_page()
+        video_urls = []
+
+        # Listen to all network responses
+        async def handle_response(response):
+            url = response.url
+            if any(pattern in url.lower() for pattern in ['.mp4', '.m3u8', 'video', 'media']):
+                logging.info(f"[NETWORK] Found video URL: {url}")
+                video_urls.append(url)
+        page.on("response", handle_response)
+
+        logging.info(f"🔗 Opening Pinterest pin: {pin_url}")
+        await page.goto(pin_url, timeout=60000)
+        await page.wait_for_timeout(3000)
+
+        # Auto-scroll to trigger video loading
+        logging.info("📜 Auto-scrolling...")
+        for i in range(3):
+            await page.evaluate("window.scrollBy(0, 500)")
+            await page.wait_for_timeout(1000)
+
+        # Try to click on video elements
+        try:
+            video_elements = await page.query_selector_all("video, [data-test-id*='video']")
+            if video_elements:
+                logging.info(f"🎥 Found {len(video_elements)} video elements")
+                for video in video_elements:
+                    await video.click()
+                    await page.wait_for_timeout(2000)
+        except:
+            pass
+
+        # Extract data with JavaScript
+        logging.info("🔧 Extracting data with JavaScript...")
+        js_result = await page.evaluate("""
+            () => {
+                const results = {};
+                
+                // Check PWS state
+                if (window.__PWS_INITIAL_STATE__) {
+                    results.pws_state = window.__PWS_INITIAL_STATE__;
+                }
+                
+                // Check video elements
+                const videos = document.querySelectorAll('video');
+                results.video_elements = [];
+                for (let video of videos) {
+                    results.video_elements.push({
+                        src: video.src,
+                        currentSrc: video.currentSrc
+                    });
+                }
+                
+                // Check all elements for video URLs
+                const allElements = document.querySelectorAll('*');
+                for (let el of allElements) {
+                    const attrs = ['src', 'href', 'data-src'];
+                    for (let attr of attrs) {
+                        const value = el.getAttribute(attr);
+                        if (value && (value.includes('.mp4') || value.includes('video'))) {
+                            results.found_urls = results.found_urls || [];
+                            results.found_urls.push({element: el.tagName, attr: attr, value: value});
+                        }
+                    }
+                }
+                
+                return results;
+            }
+        """)
+
+        # Process JavaScript results
+        if js_result.get('pws_state'):
+            logging.info("✅ Found PWS state data")
+            try:
+                pws_data = js_result['pws_state']
+                if isinstance(pws_data, str):
+                    pws_data = json.loads(pws_data)
+                if 'resourceResponses' in pws_data:
+                    for resource in pws_data['resourceResponses']:
+                        if 'response' in resource and 'data' in resource['response']:
+                            data = resource['response']['data']
+                            if 'videos' in data:
+                                logging.info("🎥 Found videos in PWS state!")
+                                video_list = data['videos'].get('video_list', {})
+                                for quality, video_data in video_list.items():
+                                    if isinstance(video_data, dict) and 'url' in video_data:
+                                        url = video_data['url']
+                                        logging.info(f"📹 {quality}: {url}")
+                                        video_urls.append(url)
+            except Exception as e:
+                logging.error(f"❌ Error parsing PWS state: {e}")
+
+        if js_result.get('video_elements'):
+            logging.info(f"🎬 Found {len(js_result['video_elements'])} video elements")
+            for video in js_result['video_elements']:
+                if video.get('src'):
+                    video_urls.append(video['src'])
+                if video.get('currentSrc'):
+                    video_urls.append(video['currentSrc'])
+
+        if js_result.get('found_urls'):
+            logging.info(f"🔗 Found {len(js_result['found_urls'])} potential video URLs")
+            for item in js_result['found_urls']:
+                video_urls.append(item['value'])
+
+        await browser.close()
+        
+        # Filter and return best video URL
+        filtered_urls = []
+        for url in video_urls:
+            if url and url.startswith('http') and any(ext in url.lower() for ext in ['.mp4', '.m3u8', 'video']):
+                filtered_urls.append(url)
+        
+        return filtered_urls[0] if filtered_urls else None
+
 @app.route("/api/video", methods=["POST", "OPTIONS"])
 def download_video():
     # Handle CORS preflight
@@ -76,44 +198,25 @@ def download_video():
 
         if is_pinterest_url(video_url):
             video_url = clean_pinterest_url(video_url)
-            logging.info(f"Scraping Pinterest URL: {video_url}")
+            logging.info(f"Extracting Pinterest video: {video_url}")
 
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
-            }
-            
-            # 1. Giả làm trình duyệt để lấy HTML
-            page_response = requests.get(video_url, headers=headers)
-            page_response.raise_for_status() # Báo lỗi nếu không lấy được trang
-            
-            # 2. Dùng BeautifulSoup để phân tích
-            soup = BeautifulSoup(page_response.text, 'html.parser')
-            
-            # 3. Tìm script chứa dữ liệu
-            data_script = soup.find("script", {"id": "__PWS_INITIAL_STATE__", "type": "application/json"})
-            if not data_script:
-                raise Exception("Could not find data script in Pinterest page.")
+            # Use Playwright to extract video
+            try:
+                video_url_result = asyncio.run(extract_pinterest_video(video_url))
                 
-            json_data = json.loads(data_script.string)
-
-            # Lấy link video chất lượng cao nhất
-            video_list = json_data['resourceResponses'][0]['response']['data']['videos']['video_list']
-            best_video = video_list.get('V_EXP7', video_list.get('V_720P', video_list.get('V_HLSV4', {})))
-            media_url = best_video.get('url')
-
-            if not media_url:
-                raise Exception("Could not extract video URL from JSON data.")
-
-            # Lấy tiêu đề để làm tên file
-            title = json_data['resourceResponses'][0]['response']['data'].get('title', 'pinterest_video')
-            file_name = clean_filename(title) + ".mp4"
-            
-            logging.info(f"Successfully extracted video URL: {media_url}")
-            return jsonify({
-                "success": True,
-                "file_url": media_url,
-                "file_name": file_name
-            })
+                if video_url_result:
+                    logging.info(f"Successfully extracted video URL: {video_url_result}")
+                    return jsonify({
+                        "success": True,
+                        "file_url": video_url_result,
+                        "file_name": "pinterest_video.mp4"
+                    })
+                else:
+                    return jsonify({"error": "Could not extract video from Pinterest", "success": False}), 404
+                    
+            except Exception as e:
+                logging.error(f"Playwright extraction failed: {e}")
+                return jsonify({"error": "Failed to extract video using browser automation", "success": False}), 500
 
         else:
             # Giữ lại yt-dlp cho các nền tảng khác
@@ -135,12 +238,9 @@ def download_video():
                     "success": True
                 }), 200
 
-    except requests.exceptions.HTTPError as e:
-        logging.error(f"Failed to fetch Pinterest page: {e}")
-        return jsonify({"error": "Could not access the Pinterest page. It might be private or deleted.", "details": str(e), "success": False}), 404
     except Exception as e:
-        logging.error(f"An expert-level error occurred: {e}")
-        return jsonify({"error": "A sophisticated error occurred. Please tell the expert.", "details": str(e), "success": False}), 500
+        logging.error(f"An error occurred: {e}")
+        return jsonify({"error": "An error occurred while processing the request", "details": str(e), "success": False}), 500
 
 @app.route("/api/download/<filename>", methods=["GET"])
 def download_file(filename):
