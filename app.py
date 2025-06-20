@@ -64,30 +64,76 @@ def download_video():
 
         logging.info(f"Processing URL: {video_url}")
 
-        # Pinterest-specific configuration - ĐƠN GIẢN HÓA
+        # Pinterest-specific configuration - THỬ NHIỀU CÁCH
         if is_pinterest_url(video_url):
             logging.info("Detected Pinterest URL")
-            ydl_opts = {
-                'format': 'best[ext=mp4]/best[ext=webm]/best',
-                'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'no_warnings': True,
-                'quiet': True,
-                'no_check_certificate': True,
-                'ignoreerrors': False,
-                'nocheckcertificate': True,
-                'prefer_ffmpeg': True,
-                'geo_bypass': True,
-                'geo_bypass_country': 'US',
-                'http_headers': {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                    'Accept-Language': 'en-us,en;q=0.5',
-                    'Accept-Encoding': 'gzip,deflate',
-                    'Accept-Charset': 'ISO-8859-1,utf-8;q=0.7,*;q=0.7',
-                    'Connection': 'keep-alive',
+            
+            # Thử nhiều config khác nhau
+            configs = [
+                {
+                    'format': 'best[ext=mp4]/best[ext=webm]/best',
+                    'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
+                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'no_warnings': True,
+                    'quiet': True,
+                    'no_check_certificate': True,
+                    'ignoreerrors': False,
+                    'nocheckcertificate': True,
+                    'prefer_ffmpeg': True,
+                    'geo_bypass': True,
+                    'geo_bypass_country': 'US',
+                    'http_headers': {
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+                        'Accept-Language': 'en-US,en;q=0.9',
+                        'Accept-Encoding': 'gzip, deflate, br',
+                        'DNT': '1',
+                        'Connection': 'keep-alive',
+                        'Upgrade-Insecure-Requests': '1',
+                        'Sec-Fetch-Dest': 'document',
+                        'Sec-Fetch-Mode': 'navigate',
+                        'Sec-Fetch-Site': 'none',
+                        'Sec-Fetch-User': '?1',
+                        'Cache-Control': 'max-age=0',
+                    },
+                    'cookies': {
+                        'csrftoken': 'dummy_token',
+                        'sessionid': 'dummy_session',
+                        '_auth': '0',
+                    }
+                },
+                {
+                    'format': 'best',
+                    'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
+                    'user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'no_warnings': True,
+                    'quiet': True,
+                    'http_headers': {
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                        'Accept-Language': 'en-US,en;q=0.5',
+                        'Accept-Encoding': 'gzip, deflate',
+                        'Connection': 'keep-alive',
+                    }
                 }
-            }
+            ]
+            
+            # Thử từng config cho đến khi thành công
+            for i, ydl_opts in enumerate(configs):
+                try:
+                    logging.info(f"Trying config {i+1}...")
+                    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                        info = ydl.extract_info(video_url, download=True)
+                        file_name = ydl.prepare_filename(info)
+                        file_name = os.path.basename(file_name.strip())
+                        file_name = clean_filename(file_name)
+                        logging.info(f"Download completed with config {i+1}: {file_name}")
+                        break
+                except Exception as e:
+                    logging.error(f"Config {i+1} failed: {e}")
+                    if i == len(configs) - 1:  # Nếu là config cuối cùng
+                        raise e
+                    continue
         else:
             # Default for other platforms
             ydl_opts = {
@@ -95,16 +141,14 @@ def download_video():
                 'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             }
-
-        # Download video using yt-dlp
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            logging.info("Starting download...")
-            info = ydl.extract_info(video_url, download=True)
-            file_name = ydl.prepare_filename(info)
-            file_name = os.path.basename(file_name.strip())
-            file_name = clean_filename(file_name)
             
-            logging.info(f"Download completed: {file_name}")
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                logging.info("Starting download...")
+                info = ydl.extract_info(video_url, download=True)
+                file_name = ydl.prepare_filename(info)
+                file_name = os.path.basename(file_name.strip())
+                file_name = clean_filename(file_name)
+                logging.info(f"Download completed: {file_name}")
 
         # Return downloaded file information
         response = jsonify({
