@@ -3,19 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Downloader</title>
+    <title>Pinterest Video Downloader</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .error { color: red; }
+        .success { color: green; }
+        .loading { color: blue; }
+        #download-container { margin-top: 20px; }
+        #download-video-btn {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        #download-video-btn:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Video Downloader</h1>
-            <p>Easily download videos from Pinterest, YouTube, TikTok, and Vimeo!</p>
+            <h1>Pinterest Video Downloader</h1>
+            <p>Download videos from Pinterest easily and quickly!</p>
         </header>
         <main>
             <div class="input-container">
-                <input type="text" id="video-url" placeholder="Enter video link here…">
-                <button id="download-btn">Download</button>
+                <input type="text" id="video-url" placeholder="Paste Pinterest video URL here...">
+                <button id="download-btn">Download Video</button>
             </div>
             <div class="logos">
                 <img src="pinterest-logo.png" alt="Pinterest" title="Pinterest">
@@ -23,14 +41,16 @@
                 <img src="tiktok-logo.png" alt="TikTok" title="TikTok">
                 <img src="vimeo-logo.png" alt="Vimeo" title="Vimeo">
             </div>
-            <div id="loader" style="display: none;">Loading...</div>
+            <div id="loader" style="display: none;">
+                <div class="loading">Processing video... Please wait...</div>
+            </div>
             <div id="message"></div>
             <div id="download-container" style="display: none;">
-                <button id="download-video-btn">Download Video</button>
+                <button id="download-video-btn">Download Video File</button>
             </div>
         </main>
         <footer>
-            <p>&copy; 2024 Video Downloader | <a href="mailto:support@videodownloader.com">Contact us</a></p>
+            <p>&copy; 2024 Pinterest Video Downloader | <a href="mailto:support@videodownloader.com">Contact us</a></p>
         </footer>
     </div>
 

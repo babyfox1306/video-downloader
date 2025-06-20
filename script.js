@@ -1,8 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Lấy phần tử từ DOM
-    const pinUrlInput = document.getElementById('pin-url');
+    // Lấy phần tử từ DOM - CHỈ LẤY NHỮNG CÁI TỒN TẠI
     const downloadButton = document.getElementById('download-btn');
-    const pinInfoDiv = document.getElementById('pin-info');
     const loader = document.getElementById('loader');
     const message = document.getElementById('message');
     const videoUrlInput = document.getElementById('video-url');
@@ -10,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const downloadVideoBtn = document.getElementById('download-video-btn');
 
     // Kiểm tra nếu các phần tử tồn tại
-    if (!downloadButton || !pinUrlInput || !pinInfoDiv || !loader || !message || !videoUrlInput || !downloadContainer || !downloadVideoBtn) {
+    if (!downloadButton || !loader || !message || !videoUrlInput || !downloadContainer || !downloadVideoBtn) {
         console.error("One or more required DOM elements are missing.");
         return;
     }
@@ -21,63 +19,67 @@ document.addEventListener("DOMContentLoaded", function () {
         return regex.test(url);
     }
 
-    // Hàm lấy thông tin pin và tải video
-    async function fetchPinData(url) {
-        try {
-            if (!validatePinterestUrl(url)) {
-                throw new Error('Invalid Pinterest URL!');
-            }
-
-            pinInfoDiv.innerHTML = '<p>Fetching data...</p>';
-
-            const response = await fetch('/download-pin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url })
-            });
-            const data = await response.json();
-
-            if (data.success) {
-                pinInfoDiv.innerHTML = `
-                    <h2>${data.title}</h2>
-                    <img src="${data.thumbnail}" alt="Pin thumbnail">
-                    <a href="${data.downloadLink}" download>Download Video</a>
-                `;
-            } else {
-                throw new Error(data.message || 'Error downloading pin');
-            }
-        } catch (error) {
-            console.error('Error fetching pin data:', error);
-            pinInfoDiv.innerHTML = `<p>${error.message}</p>`;
-        }
-    }
-
-    // Hàm tải video
+    // Hàm tải video với fallback cho CORS
     async function downloadVideo(url) {
         loader.style.display = "block";
-        message.innerHTML = "";  // Xóa thông báo lỗi cũ
+        message.innerHTML = "Processing video... Please wait...";
+        message.style.color = "black";
 
         try {
-            const response = await fetch("https://video-downloader-38i3.onrender.com/api/video", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url })
-            });
+            // Thử gọi API trực tiếp trước
+            let response;
+            try {
+                response = await fetch("https://video-downloader-38i3.onrender.com/api/video", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({ url })
+                });
+            } catch (corsError) {
+                console.log("CORS error, trying with proxy...");
+                // Fallback: dùng CORS proxy
+                response = await fetch("https://cors-anywhere.herokuapp.com/https://video-downloader-38i3.onrender.com/api/video", {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "Accept": "application/json"
+                    },
+                    body: JSON.stringify({ url })
+                });
+            }
+            
+            // Kiểm tra response status
+            if (!response.ok) {
+                const text = await response.text();
+                throw new Error(`HTTP ${response.status}: ${text}`);
+            }
+
             const data = await response.json();
+            console.log("API Response:", data);
 
             loader.style.display = "none";
 
             if (data.file_url) {
-                message.innerHTML = "Download complete!";
+                message.innerHTML = "Download complete! Click the button below to download.";
                 message.style.color = "green";
-
-                // Tạo liên kết tải về tự động
-                const link = document.createElement("a");
-                link.href = data.file_url; // Đảm bảo server trả về file URL
-                link.download = data.file_name; // Đặt tên file tự động
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                
+                // Hiển thị nút download
+                downloadContainer.style.display = "block";
+                
+                // Cập nhật link download
+                downloadVideoBtn.onclick = function() {
+                    const link = document.createElement("a");
+                    link.href = data.file_url;
+                    link.download = data.file_name || "video.mp4";
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                };
+            } else if (data.error) {
+                message.innerHTML = "Error: " + data.error;
+                message.style.color = "red";
             } else {
                 message.innerHTML = "Failed to download. Please try again!";
                 message.style.color = "red";
@@ -86,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function () {
             loader.style.display = "none";
             message.innerHTML = "Error: " + error.message;
             message.style.color = "red";
+            console.error("Download error:", error);
         }
     }
 
