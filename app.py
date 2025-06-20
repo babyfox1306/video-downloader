@@ -36,6 +36,16 @@ def ads_txt():
 def is_pinterest_url(url):
     return 'pinterest.com' in url.lower()
 
+# Function to clean Pinterest URL
+def clean_pinterest_url(url):
+    # Find the canonical pin URL and remove tracking/invite parameters
+    match = re.search(r'(https://(www\.)?pinterest\.com/pin/\d+/)', url)
+    if match:
+        cleaned_url = match.group(1)
+        logging.info(f"Cleaned Pinterest URL from {url} to {cleaned_url}")
+        return cleaned_url
+    return url
+
 # Function to clean filename
 def clean_filename(filename):
     # Remove invalid characters
@@ -61,6 +71,10 @@ def download_video():
 
         if not video_url:
             return jsonify({"error": "No URL provided"}), 400
+
+        # Clean URL if it's from Pinterest
+        if is_pinterest_url(video_url):
+            video_url = clean_pinterest_url(video_url)
 
         logging.info(f"Processing URL: {video_url}")
 
