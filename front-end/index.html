@@ -4,11 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <title>Pinterest Video Downloader</title>
+    <title>ZavClip - High-Quality Video Downloader</title>
     
-    <meta name="description" content="Pinterest Video Downloader - Quickly and securely download videos from Pinterest for free. Simple and efficient.">
-    <meta name="keywords" content="Pinterest video downloader, download Pinterest videos, free video downloader, ZavClip, Pinterest downloader">
+    <meta name="description" content="ZavClip - Quickly and securely download high-quality videos from Pinterest, YouTube, TikTok, Vimeo, and more. Free and easy to use.">
+    <meta name="keywords" content="Video downloader, Pinterest video downloader, YouTube downloader, TikTok downloader, Vimeo downloader, download videos, free video downloader, ZavClip">
     <meta name="author" content="ZavClip">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
     <!-- PWA and SEO Improvements -->
     <link rel="stylesheet" href="style.css">
@@ -22,12 +27,23 @@
 <body>
     <div class="container">
         <header>
-            <h1>Video Downloader</h1>
-            <p>Easily download videos from Pinterest!</p>
+            <h1>ZavClip</h1>
+            <p>Download High-Quality Videos from Your Favorite Platforms</p>
         </header>
+
         <main>
+            <div class="supported-platforms">
+                <h3>Supported Platforms</h3>
+                <div class="logos">
+                    <img src="pinterest-logo.png" alt="Pinterest">
+                    <img src="youtube-logo.png" alt="YouTube">
+                    <img src="tiktok-logo.png" alt="TikTok">
+                    <img src="vimeo-logo.png" alt="Vimeo">
+                </div>
+            </div>
+
             <div class="input-container">
-                <input type="text" id="video-url" placeholder="Enter video link here…">
+                <input type="text" id="video-url" placeholder="Paste your video link here...">
                 <button id="download-btn">Download</button>
             </div>
             <div id="loader" class="spinner" style="display: none;"></div>
@@ -40,25 +56,28 @@
                 <p id="file-name"></p>
                 <a id="download-link" href="#" download>Download File</a>
             </div>
-            <button id="show-instructions">How to Download?</button>
+            <button id="show-instructions">How do I get the link?</button>
         </main>
+
         <footer>
-            <p>&copy; 2024 ZavClip - Pinterest Video Downloader</p>
-            <p>Disclaimer: This tool is not affiliated with Pinterest. All trademarks and videos belong to their respective owners. Ensure you have the rights or permissions before downloading any content.</p>
+            <p>&copy; 2024 ZavClip - Video Downloader</p>
+            <p>Disclaimer: This tool is not affiliated with any of the supported platforms. All trademarks and videos belong to their respective owners. Please ensure you have the rights or permissions before downloading any content.</p>
         </footer>
     </div>
 
     <!-- Modal for instructions -->
     <div id="instructions-modal">
         <div class="modal-content">
-            <h2>How to Download Videos from Pinterest</h2>
+            <h2>How to Get the Video Link</h2>
             <ol>
-                <li>Go to Pinterest and find the video you want to download.</li>
-                <li>Click the <strong>Share</strong> button and copy the video link.</li>
+                <li>Open the app (e.g., Pinterest, YouTube).</li>
+                <li>Find the video you want to download.</li>
+                <li>Click the <strong>Share</strong> button (or look for the share icon).</li>
+                <li>Select <strong>"Copy Link"</strong> from the options.</li>
                 <li>Paste the copied link into the input box on this page.</li>
                 <li>Click the <strong>Download</strong> button to get your video.</li>
             </ol>
-            <button id="close-instructions">Close</button>
+            <button id="close-instructions">Got it!</button>
         </div>
     </div>
 
