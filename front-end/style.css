@@ -13,98 +13,93 @@ body, h1, p, input, button {
     font-family: Arial, sans-serif;
 }
 
-/* Body styling */
+/* General Body & Font Styling */
 body {
-    background: url("background.jpg") no-repeat center center fixed;
-    background-size: cover;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    background: #f4f6f8;
+    color: #333;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     min-height: 100vh;
-    text-align: center;
-    color: #333;
 }
 
-/* Container styling */
+/* Main Container */
 .container {
-    background: rgba(255, 255, 255, 0.9);
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
     padding: 20px;
-    max-width: 400px;
-    width: 90%;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    text-align: center;
 }
 
-/* Header styling */
+/* Header */
 header h1 {
-    font-size: 24px;
-    margin-bottom: 10px;
-    color: #444;
+    margin: 0 0 10px 0;
+    font-size: 2rem;
+    color: #c23b33; /* Pinterest Red */
 }
 
 header p {
-    font-size: 14px;
-    color: #666;
-    margin-bottom: 20px;
+    margin: 0;
+    font-size: 1rem;
+    color: #555;
 }
 
-/* Input container */
+/* Input Area */
 .input-container {
     display: flex;
-    flex-direction: column;
-    align-items: center;
     gap: 10px;
+    margin-top: 20px;
 }
 
-input {
-    width: 100%;
-    padding: 10px;
-    font-size: 14px;
+.input-container input {
+    flex: 1;
+    padding: 12px;
     border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
+    border-radius: 4px;
+    font-size: 1rem;
 }
 
-input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-button {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-button:hover {
-    background-color: #0056b3;
-}
-
-/* Hiển thị loader khi đang tải */
-#loader {
-    display: none;
-    color: #fff;
-    margin-top: 20px;
-    font-size: 1.2rem;
-}
-
-/* Hiển thị thông báo hoàn thành hoặc lỗi */
-#message {
-    margin-top: 20px;
-    font-size: 1.2rem;
+.input-container button,
+#show-instructions,
+#instructions-modal button {
+    padding: 12px 20px;
+    font-size: 1rem;
     font-weight: bold;
+    color: white;
+    background-color: #005ea6; /* Accessible Blue */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
 
+.input-container button:hover,
+#show-instructions:hover,
+#instructions-modal button:hover {
+    background-color: #003d73; /* Darker Blue */
+}
+
+#show-instructions {
+    margin-top: 15px;
+    background-color: #555;
+}
+#show-instructions:hover {
+    background-color: #333;
+}
+
+
+/* Loader/Spinner */
 .spinner {
-    border: 4px solid rgba(255, 255, 255, 0.3);
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-left-color: #005ea6;
     border-radius: 50%;
-    border-top: 4px solid #fff;
     width: 40px;
     height: 40px;
     animation: spin 1s linear infinite;
@@ -112,12 +107,111 @@ button:hover {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    to { transform: rotate(360deg); }
 }
 
-#video-info {
+/* Messages & Download Area */
+#message {
     margin-top: 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+}
+
+#download-container {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+}
+
+#download-link {
+    color: #005ea6;
+    text-decoration: none;
+    font-weight: bold;
+}
+#download-link:hover {
+    text-decoration: underline;
+}
+
+/* Instructions Modal */
+#instructions-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    justify-content: center;
+    align-items: center;
+}
+
+#instructions-modal .modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    text-align: left;
+}
+
+#instructions-modal h2 {
+    margin-top: 0;
+    text-align: center;
+}
+
+#instructions-modal ol {
+    padding-left: 20px;
+    line-height: 1.6;
+}
+
+#instructions-modal li {
+    margin-bottom: 10px;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+footer a {
+    color: #005ea6;
+    text-decoration: none;
+}
+footer a:hover {
+    text-decoration: underline;
+}
+
+/* Progress Bar (if needed) */
+#progress-container {
+    margin-top: 20px;
+}
+
+progress {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    border: none;
+}
+progress::-webkit-progress-bar {
+    background-color: #eee;
+    border-radius: 4px;
+}
+progress::-webkit-progress-value {
+    background-color: #005ea6;
+    border-radius: 4px;
+    transition: width 0.1s linear;
+}
+progress::-moz-progress-bar {
+    background-color: #005ea6;
+    border-radius: 4px;
 }
 
 /* Logos styling */
@@ -145,31 +239,4 @@ button:hover {
     font-size: 12px;
     color: #555;
     margin-top: 15px;
-}
-
-/* Footer */
-footer {
-    margin-top: 20px;
-    font-size: 12px;
-    color: #666;
-}
-
-footer a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-footer a:hover {
-    text-decoration: underline;
-}
-
-#progress-container {
-    margin-top: 20px;
-    text-align: center;
-}
-
-progress {
-    width: 100%;
-    height: 20px;
-    border-radius: 5px;
 }
