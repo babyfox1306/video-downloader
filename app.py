@@ -1,10 +1,12 @@
 import os
 import logging
 import re
+import json
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
-import yt_dlp
 import requests
+from bs4 import BeautifulSoup
+import yt_dlp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -39,7 +41,6 @@ def is_pinterest_url(url):
 
 # Function to clean Pinterest URL
 def clean_pinterest_url(url):
-    # Find the canonical pin URL and remove tracking/invite parameters
     match = re.search(r'(https://(www\.)?pinterest\.com/pin/\d+/)', url)
     if match:
         cleaned_url = match.group(1)
@@ -73,44 +74,49 @@ def download_video():
         if not video_url:
             return jsonify({"error": "No URL provided"}), 400
 
-        # SỬ DỤNG API TRUNG GIAN CHO PINTEREST
         if is_pinterest_url(video_url):
-            logging.info(f"Using third-party API for Pinterest URL: {video_url}")
-            
-            # Gọi API từ RapidAPI
-            api_url = "https://pinterest-downloader.p.rapidapi.com/download"
-            querystring = {"url": video_url}
+            video_url = clean_pinterest_url(video_url)
+            logging.info(f"Scraping Pinterest URL: {video_url}")
+
             headers = {
-                "x-rapidapi-key": os.environ.get("RAPIDAPI_KEY"), # Lấy key từ biến môi trường
-                "x-rapidapi-host": "pinterest-downloader.p.rapidapi.com"
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
             }
-
-            # Kiểm tra xem có API Key không
-            if not headers["x-rapidapi-key"]:
-                logging.error("RAPIDAPI_KEY is not set in environment variables.")
-                return jsonify({"error": "Server configuration error: Missing API Key"}), 500
-
-            response = requests.get(api_url, headers=headers, params=querystring)
-            response.raise_for_status() # Ném lỗi nếu request thất bại (4xx, 5xx)
             
-            api_data = response.json()
-            logging.info(f"Third-party API response: {api_data}")
+            # 1. Giả làm trình duyệt để lấy HTML
+            page_response = requests.get(video_url, headers=headers)
+            page_response.raise_for_status() # Báo lỗi nếu không lấy được trang
+            
+            # 2. Dùng BeautifulSoup để phân tích
+            soup = BeautifulSoup(page_response.text, 'html.parser')
+            
+            # 3. Tìm script chứa dữ liệu
+            data_script = soup.find("script", {"id": "__PWS_INITIAL_STATE__", "type": "application/json"})
+            if not data_script:
+                raise Exception("Could not find data script in Pinterest page.")
+                
+            json_data = json.loads(data_script.string)
 
-            # Lấy link video từ kết quả API
-            media_url = api_data.get("data", {}).get("video_url")
+            # Lấy link video chất lượng cao nhất
+            video_list = json_data['resourceResponses'][0]['response']['data']['videos']['video_list']
+            best_video = video_list.get('V_EXP7', video_list.get('V_720P', video_list.get('V_HLSV4', {})))
+            media_url = best_video.get('url')
 
-            if media_url:
-                # Trả về link trực tiếp cho frontend
-                return jsonify({
-                    "success": True,
-                    "file_url": media_url,
-                    "file_name": "pinterest_video.mp4" # Đặt tên file mặc định
-                })
-            else:
-                raise Exception("Could not find video URL in third-party API response")
+            if not media_url:
+                raise Exception("Could not extract video URL from JSON data.")
 
-        # Giữ lại yt-dlp cho các nền tảng khác
+            # Lấy tiêu đề để làm tên file
+            title = json_data['resourceResponses'][0]['response']['data'].get('title', 'pinterest_video')
+            file_name = clean_filename(title) + ".mp4"
+            
+            logging.info(f"Successfully extracted video URL: {media_url}")
+            return jsonify({
+                "success": True,
+                "file_url": media_url,
+                "file_name": file_name
+            })
+
         else:
+            # Giữ lại yt-dlp cho các nền tảng khác
             logging.info(f"Using yt-dlp for URL: {video_url}")
             ydl_opts = {
                 'format': 'bestvideo+bestaudio/best',
@@ -130,11 +136,11 @@ def download_video():
                 }), 200
 
     except requests.exceptions.HTTPError as e:
-        logging.error(f"Third-party API request failed: {e}")
-        return jsonify({"error": "Failed to fetch from third-party API", "details": str(e), "success": False}), 502
+        logging.error(f"Failed to fetch Pinterest page: {e}")
+        return jsonify({"error": "Could not access the Pinterest page. It might be private or deleted.", "details": str(e), "success": False}), 404
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
-        return jsonify({"error": "Server error", "details": str(e), "success": False}), 500
+        logging.error(f"An expert-level error occurred: {e}")
+        return jsonify({"error": "A sophisticated error occurred. Please tell the expert.", "details": str(e), "success": False}), 500
 
 @app.route("/api/download/<filename>", methods=["GET"])
 def download_file(filename):
