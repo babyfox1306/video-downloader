@@ -26,7 +26,10 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background: var(--background-gradient);
+    background-image: url('background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed; /* Keep background static on scroll */
     color: var(--text-color);
     display: flex;
     justify-content: center;
