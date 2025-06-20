@@ -1,102 +1,93 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Lấy phần tử từ DOM
-    const pinUrlInput = document.getElementById('pin-url');
+    // Lấy các phần tử cần thiết từ DOM
     const downloadButton = document.getElementById('download-btn');
-    const pinInfoDiv = document.getElementById('pin-info');
+    const videoUrlInput = document.getElementById('video-url');
     const loader = document.getElementById('loader');
     const message = document.getElementById('message');
-    const videoUrlInput = document.getElementById('video-url');
     const downloadContainer = document.getElementById('download-container');
-    const downloadVideoBtn = document.getElementById('download-video-btn');
+    const downloadLink = document.getElementById('download-link');
+    const showInstructionsBtn = document.getElementById('show-instructions');
+    const instructionsModal = document.getElementById('instructions-modal');
+    const closeInstructionsBtn = document.getElementById('close-instructions');
+    const progressContainer = document.getElementById('progress-container');
+    const progressBar = document.getElementById('progress');
 
-    // Kiểm tra nếu các phần tử tồn tại
-    if (!downloadButton || !pinUrlInput || !pinInfoDiv || !loader || !message || !videoUrlInput || !downloadContainer || !downloadVideoBtn) {
+    // Kiểm tra các phần tử có tồn tại không
+    if (!downloadButton || !videoUrlInput || !loader || !message || !downloadContainer || !downloadLink || !progressContainer || !progressBar) {
         console.error("One or more required DOM elements are missing.");
         return;
     }
 
-    // Hàm kiểm tra URL Pinterest
-    function validatePinterestUrl(url) {
-        const regex = /^https:\/\/(www\.)?pinterest\.com\/pin\/\d+/;
-        return regex.test(url);
-    }
-
-    // Hàm lấy thông tin pin và tải video
-    async function fetchPinData(url) {
-        try {
-            if (!validatePinterestUrl(url)) {
-                throw new Error('Invalid Pinterest URL!');
-            }
-
-            pinInfoDiv.innerHTML = '<p>Fetching data...</p>';
-
-            const response = await fetch('/download-pin', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url })
-            });
-            const data = await response.json();
-
-            if (data.success) {
-                pinInfoDiv.innerHTML = `
-                    <h2>${data.title}</h2>
-                    <img src="${data.thumbnail}" alt="Pin thumbnail">
-                    <a href="${data.downloadLink}" download>Download Video</a>
-                `;
-            } else {
-                throw new Error(data.message || 'Error downloading pin');
-            }
-        } catch (error) {
-            console.error('Error fetching pin data:', error);
-            pinInfoDiv.innerHTML = `<p>${error.message}</p>`;
-        }
-    }
-
-    // Hàm tải video
+    // Hàm gọi API để tải video
     async function downloadVideo(url) {
-        loader.style.display = "block";
-        message.innerHTML = "";  // Xóa thông báo lỗi cũ
+        // Reset UI
+        loader.style.display = 'block';
+        message.textContent = 'Processing, please wait...';
+        message.style.color = '#333';
+        downloadContainer.style.display = 'none';
+        progressContainer.style.display = 'none';
+        progressBar.value = 0;
 
         try {
-            const response = await fetch("https://cors-anywhere.herokuapp.com/https://video-downloader-38i3.onrender.com/api/video", {
+            const response = await fetch("https://video-downloader-38i3.onrender.com/api/video", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ url })
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
+                body: JSON.stringify({ url: url }),
             });
+
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: "Unknown server error", details: response.statusText }));
+                throw new Error(errorData.details || errorData.error);
+            }
+
             const data = await response.json();
 
-            loader.style.display = "none";
+            if (data.success && data.file_url) {
+                message.textContent = 'Download ready!';
+                message.style.color = 'green';
 
-            if (data.file_url) {
-                message.innerHTML = "Download complete!";
-                message.style.color = "green";
+                downloadLink.href = data.file_url;
+                downloadLink.setAttribute('download', data.file_name || 'video.mp4');
+                document.getElementById('file-name').textContent = `File: ${data.file_name || 'video.mp4'}`;
+                downloadContainer.style.display = 'block';
 
-                // Tạo liên kết tải về tự động
-                const link = document.createElement("a");
-                link.href = data.file_url; // Đảm bảo server trả về file URL
-                link.download = data.file_name; // Đặt tên file tự động
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                // Tự động click để tải về
+                downloadLink.click();
             } else {
-                message.innerHTML = "Failed to download. Please try again!";
-                message.style.color = "red";
+                throw new Error(data.details || data.error || "Failed to get download link.");
             }
+
         } catch (error) {
-            loader.style.display = "none";
-            message.innerHTML = "Error: " + error.message;
-            message.style.color = "red";
+            message.textContent = `Error: ${error.message}`;
+            message.style.color = 'red';
+            console.error('Download error:', error);
+        } finally {
+            loader.style.display = 'none';
         }
     }
 
-    // Xử lý sự kiện click cho nút tải
+    // Gắn sự kiện cho nút Download
     downloadButton.addEventListener('click', () => {
         const url = videoUrlInput.value.trim();
         if (url) {
             downloadVideo(url);
         } else {
-            message.innerHTML = "Please enter a valid video URL!";
+            message.textContent = "Please enter a valid video URL!";
             message.style.color = "red";
         }
     });
+
+    // Xử lý modal hướng dẫn
+    if (showInstructionsBtn && instructionsModal && closeInstructionsBtn) {
+        showInstructionsBtn.addEventListener('click', () => {
+            instructionsModal.style.display = 'flex';
+        });
+
+        closeInstructionsBtn.addEventListener('click', () => {
+            instructionsModal.style.display = 'none';
+        });
+    }
 });
