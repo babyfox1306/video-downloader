@@ -64,15 +64,13 @@ def download_video():
 
         logging.info(f"Processing URL: {video_url}")
 
-        # Pinterest-specific configuration
+        # Pinterest-specific configuration - ĐƠN GIẢN HÓA
         if is_pinterest_url(video_url):
             logging.info("Detected Pinterest URL")
             ydl_opts = {
                 'format': 'best[ext=mp4]/best[ext=webm]/best',
                 'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
                 'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-                'cookiesfrombrowser': ('chrome',),
-                'extract_flat': False,
                 'no_warnings': True,
                 'quiet': True,
                 'no_check_certificate': True,

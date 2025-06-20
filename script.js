@@ -19,26 +19,34 @@ document.addEventListener("DOMContentLoaded", function () {
         return regex.test(url);
     }
 
-    // Hàm tải video với fallback cho CORS
+    // Hàm tải video với debug chi tiết
     async function downloadVideo(url) {
         loader.style.display = "block";
         message.innerHTML = "Processing video... Please wait...";
         message.style.color = "black";
 
+        console.log("Starting download for URL:", url);
+
         try {
+            const requestBody = { url: url };
+            console.log("Request body:", requestBody);
+
             // Thử gọi API trực tiếp trước
             let response;
             try {
+                console.log("Calling API directly...");
                 response = await fetch("https://video-downloader-38i3.onrender.com/api/video", {
                     method: "POST",
                     headers: { 
                         "Content-Type": "application/json",
                         "Accept": "application/json"
                     },
-                    body: JSON.stringify({ url })
+                    body: JSON.stringify(requestBody)
                 });
+                console.log("Response status:", response.status);
+                console.log("Response headers:", response.headers);
             } catch (corsError) {
-                console.log("CORS error, trying with proxy...");
+                console.log("CORS error, trying with proxy...", corsError);
                 // Fallback: dùng CORS proxy
                 response = await fetch("https://cors-anywhere.herokuapp.com/https://video-downloader-38i3.onrender.com/api/video", {
                     method: "POST",
@@ -46,13 +54,14 @@ document.addEventListener("DOMContentLoaded", function () {
                         "Content-Type": "application/json",
                         "Accept": "application/json"
                     },
-                    body: JSON.stringify({ url })
+                    body: JSON.stringify(requestBody)
                 });
             }
             
             // Kiểm tra response status
             if (!response.ok) {
                 const text = await response.text();
+                console.error("Error response:", text);
                 throw new Error(`HTTP ${response.status}: ${text}`);
             }
 
