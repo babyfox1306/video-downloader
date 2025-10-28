@@ -1606,8 +1606,7 @@ def process_video_request(data, fast_mode=False):
                     'Connection': 'keep-alive',
                     'Upgrade-Insecure-Requests': '1',
                 },
-                # General bypass settings
-                'cookiefile': '',
+                # General bypass settings (removed cookiefile to avoid FileNotFoundError)
                 'nocheckcertificate': True,
                 'prefer_insecure': True,
                 'no_check_certificate': True,
@@ -1618,10 +1617,19 @@ def process_video_request(data, fast_mode=False):
                 'fragment_retries': 10,
                 'file_access_retries': 10,
             }
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                info = ydl.extract_info(video_url, download=True)
-                file_name = ydl.prepare_filename(info)
-                file_path = os.path.join(DOWNLOAD_DIR, os.path.basename(file_name.strip()))
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(video_url, download=True)
+                    file_name = ydl.prepare_filename(info)
+                    file_path = os.path.join(DOWNLOAD_DIR, os.path.basename(file_name.strip()))
+            except Exception as yt_error:
+                logging.error(f"❌ yt-dlp failed: {yt_error}")
+                # Return error with suggestion to try another platform or contact support
+                return jsonify({
+                    "error": f"Could not download video. YouTube may be blocking automated downloads. Please try a direct video link from another platform (Facebook, TikTok, etc.)",
+                    "success": False,
+                    "details": str(yt_error)
+                }), 500
                 
                 # Clean filename for safe download
                 clean_name = clean_filename(os.path.basename(file_name.strip()))
