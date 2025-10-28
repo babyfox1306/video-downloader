@@ -8,9 +8,7 @@ import sys
 import tempfile
 import time
 from flask import Flask, request, jsonify, send_from_directory, Response
-from flask_cors import CORS
 import requests
-from bs4 import BeautifulSoup
 import yt_dlp
 from playwright.async_api import async_playwright
 
