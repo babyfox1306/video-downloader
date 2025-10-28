@@ -1622,14 +1622,6 @@ def process_video_request(data, fast_mode=False):
                     info = ydl.extract_info(video_url, download=True)
                     file_name = ydl.prepare_filename(info)
                     file_path = os.path.join(DOWNLOAD_DIR, os.path.basename(file_name.strip()))
-            except Exception as yt_error:
-                logging.error(f"❌ yt-dlp failed: {yt_error}")
-                # Return error with suggestion to try another platform or contact support
-                return jsonify({
-                    "error": f"Could not download video. YouTube may be blocking automated downloads. Please try a direct video link from another platform (Facebook, TikTok, etc.)",
-                    "success": False,
-                    "details": str(yt_error)
-                }), 500
                 
                 # Clean filename for safe download
                 clean_name = clean_filename(os.path.basename(file_name.strip()))
@@ -1672,6 +1664,15 @@ def process_video_request(data, fast_mode=False):
                 else:
                     logging.error(f"❌ Downloaded file not found: {file_path}")
                     return jsonify({"error": "Downloaded file not found", "success": False}), 404
+                    
+            except Exception as yt_error:
+                logging.error(f"❌ yt-dlp failed: {yt_error}")
+                # Return error with suggestion to try another platform or contact support
+                return jsonify({
+                    "error": "Could not download video. YouTube may be blocking automated downloads. Please try a direct video link from another platform (Facebook, TikTok, etc.)",
+                    "success": False,
+                    "details": str(yt_error)
+                }), 500
 
     except Exception as e:
         error_trace = traceback.format_exc()
