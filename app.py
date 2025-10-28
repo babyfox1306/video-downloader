@@ -1584,20 +1584,40 @@ def process_video_request(data, fast_mode=False):
                 return jsonify({"error": "Failed to extract video using browser automation", "success": False}), 500
 
         else:
-            # yt-dlp cho các nền tảng khác - AUTO DOWNLOAD MODE
+            # yt-dlp cho các nền tảng khác - AUTO DOWNLOAD MODE với bypass
             logging.info(f"Using yt-dlp for URL: {video_url}")
             ydl_opts = {
                 'format': 'bestvideo+bestaudio/best',
                 'outtmpl': f"{DOWNLOAD_DIR}/%(title)s.%(ext)s",
-                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                'user_agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36',
                 'quiet': False,
                 'no_warnings': False,
+                # Bypass bot detection cho YouTube
                 'extractor_args': {
                     'youtube': {
-                        'player_client': ['android', 'web'],  # Try android first to bypass bot detection
+                        'player_client': ['android', 'ios', 'web'],
                     }
                 },
-                'cookiefile': '',  # Empty cookies - rely on android client
+                # Bypass Facebook detection
+                'http_headers': {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'Accept-Encoding': 'gzip, deflate, br',
+                    'Connection': 'keep-alive',
+                    'Upgrade-Insecure-Requests': '1',
+                },
+                # General bypass settings
+                'cookiefile': '',
+                'nocheckcertificate': True,
+                'prefer_insecure': True,
+                'no_check_certificate': True,
+                'geo_bypass': True,
+                'geo_bypass_country': 'US',
+                # Retry settings
+                'retries': 10,
+                'fragment_retries': 10,
+                'file_access_retries': 10,
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(video_url, download=True)
