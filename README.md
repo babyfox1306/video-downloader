@@ -97,7 +97,7 @@ Website có thể kiếm tiền qua:
 
 - Website: https://zavclip.netlify.app
 - Live Demo: https://zavclip.netlify.app/tools/qr-generator.html
-- GitHub: https://github.com/babyfox1306/my-website
+- GitHub: https://github.com/babyfox1306/video-downloader
 
 ## 📄 License
 
