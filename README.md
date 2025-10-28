@@ -1,5 +1,7 @@
 # ZavClip - Tool Hub
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/24fe35b9-a8d3-4ede-b18a-fd67b70830ac/deploy-status)](https://app.netlify.com/sites/zavclip/deploys)
+
 Website công cụ miễn phí trực tuyến với nhiều tiện ích hữu ích.
 
 ## 🚀 Tính năng
@@ -93,9 +95,9 @@ Website có thể kiếm tiền qua:
 
 ## 🔗 Liên kết
 
-- Website: https://zavclip.com
-- Blog: Coming soon
-- Twitter: Coming soon
+- Website: https://zavclip.netlify.app
+- Live Demo: https://zavclip.netlify.app/tools/qr-generator.html
+- GitHub: https://github.com/babyfox1306/my-website
 
 ## 📄 License
 
