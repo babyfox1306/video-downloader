@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 from flask import Flask, request, jsonify, send_from_directory, Response
 import requests
 import yt_dlp
@@ -1665,8 +1666,9 @@ def process_video_request(data, fast_mode=False):
                     return jsonify({"error": "Downloaded file not found", "success": False}), 404
 
     except Exception as e:
-        logging.error(f"An error occurred: {e}")
-        return jsonify({"error": "An error occurred while processing the request", "details": str(e), "success": False}), 500
+        error_trace = traceback.format_exc()
+        logging.error(f"❌ Error occurred: {e}\n{error_trace}")
+        return jsonify({"error": "An error occurred while processing the request", "details": str(e), "trace": error_trace, "success": False}), 500
 
 @app.route("/api/video", methods=["POST", "OPTIONS"])
 def download_video():
@@ -1680,10 +1682,12 @@ def download_video():
     
     try:
         data = request.json
+        logging.info(f"📥 Received download request: {data}")
         return process_video_request(data, fast_mode=False)
     except Exception as e:
-        logging.error(f"Download error: {e}")
-        return jsonify({"error": "Processing failed", "details": str(e), "success": False}), 500
+        error_trace = traceback.format_exc()
+        logging.error(f"❌ Download error: {e}\n{error_trace}")
+        return jsonify({"error": "Processing failed", "details": str(e), "trace": error_trace, "success": False}), 500
 
 @app.route("/api/fast-video", methods=["POST", "OPTIONS"])
 def fast_download_video():
