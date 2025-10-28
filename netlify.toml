@@ -1,6 +1,0 @@
-# Static site - no build needed
-[build]
-
-[context.production.environment]
-  NODE_VERSION = "18"
-

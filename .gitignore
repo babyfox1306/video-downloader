@@ -1,3 +1,6 @@
+# Netlify
+.netlify/
+
 # Python
 __pycache__/
 *.py[cod]
@@ -26,9 +29,5 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
-# Netlify
-.netlify/
-
 # Logs
 *.log
-
