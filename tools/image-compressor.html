@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nén ảnh miễn phí - ZavClip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/browser-image-compression@2.0.2/dist/browser-image-compression.min.js"></script>
+    <meta name="description" content="Nén ảnh online miễn phí. Giảm dung lượng ảnh mà không làm mất chất lượng.">
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-purple-600 to-purple-800 text-white py-4 shadow-lg">
+        <div class="container mx-auto px-4">
+            <nav class="flex justify-between items-center">
+                <a href="/index.html" class="flex items-center space-x-2">
+                    <i class="fas fa-toolbox text-2xl"></i>
+                    <h1 class="text-2xl font-bold">ZavClip</h1>
+                </a>
+                <div class="flex space-x-6">
+                    <a href="/index.html" class="hover:underline">Trang chủ</a>
+                    <a href="/tools.html" class="hover:underline">Tất cả công cụ</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-12 max-w-4xl">
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h1 class="text-3xl font-bold mb-4 flex items-center">
+                <i class="fas fa-compress-alt text-purple-600 mr-3"></i>
+                Nén ảnh online
+            </h1>
+            <p class="text-gray-600 mb-6">Giảm dung lượng ảnh mà không mất chất lượng</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-sm font-bold mb-2">Chọn ảnh</label>
+                    <input type="file" id="imageInput" accept="image/*" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4">
+                    
+                    <div class="mb-4">
+                        <label for="quality" class="block text-sm font-bold mb-2">
+                            Chất lượng: <span id="qualityValue">80</span>%
+                        </label>
+                        <input type="range" id="quality" min="10" max="100" value="80" 
+                               class="w-full"
+                               oninput="document.getElementById('qualityValue').textContent = this.value">
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="maxSize" class="block text-sm font-bold mb-2">
+                            Kích thước tối đa: <span id="sizeValue">1</span> MB
+                        </label>
+                        <input type="range" id="maxSize" min="0.1" max="5" step="0.1" value="1" 
+                               class="w-full"
+                               oninput="document.getElementById('sizeValue').textContent = this.value">
+                    </div>
+
+                    <button onclick="compressImage()" 
+                            class="w-full bg-purple-600 text-white py-3 rounded-lg font-semibold hover:bg-purple-700 mb-3">
+                        <i class="fas fa-compress mr-2"></i>Nén ảnh
+                    </button>
+
+                    <button id="downloadBtn" onclick="downloadImage()" 
+                            class="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 hidden">
+                        <i class="fas fa-download mr-2"></i>Tải xuống
+                    </button>
+                </div>
+
+                <div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">Ảnh gốc</label>
+                        <div id="originalImage" class="border-2 border-gray-300 rounded-lg p-4 min-h-[200px] flex items-center justify-center">
+                            <p class="text-gray-400 text-center">Chưa có ảnh</p>
+                        </div>
+                        <p id="originalSize" class="text-sm text-gray-600 mt-2"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold mb-2">Ảnh sau nén</label>
+                        <div id="compressedImage" class="border-2 border-gray-300 rounded-lg p-4 min-h-[200px] flex items-center justify-center">
+                            <p class="text-gray-400 text-center">Chưa nén</p>
+                        </div>
+                        <p id="compressedSize" class="text-sm text-gray-600 mt-2"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let originalFile = null;
+        let compressedFile = null;
+
+        document.getElementById('imageInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            originalFile = file;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                document.getElementById('originalImage').innerHTML = `<img src="${event.target.result}" class="max-w-full max-h-48 mx-auto rounded">`;
+                document.getElementById('originalSize').textContent = `Dung lượng gốc: ${(file.size / 1024).toFixed(2)} KB`;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        async function compressImage() {
+            if (!originalFile) {
+                alert('Vui lòng chọn ảnh trước!');
+                return;
+            }
+
+            const options = {
+                maxSizeMB: parseFloat(document.getElementById('maxSize').value),
+                useWebWorker: true,
+                alwaysKeepResolution: false
+            };
+
+            try {
+                const compressed = await imageCompression(originalFile, options);
+                compressedFile = compressed;
+
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    document.getElementById('compressedImage').innerHTML = `<img src="${event.target.result}" class="max-w-full max-h-48 mx-auto rounded">`;
+                    document.getElementById('compressedSize').textContent = `Dung lượng nén: ${(compressed.size / 1024).toFixed(2)} KB`;
+                    document.getElementById('downloadBtn').classList.remove('hidden');
+                };
+                reader.readAsDataURL(compressed);
+            } catch (error) {
+                alert('Lỗi khi nén ảnh: ' + error.message);
+            }
+        }
+
+        function downloadImage() {
+            if (!compressedFile) {
+                alert('Không có ảnh để tải!');
+                return;
+            }
+
+            const url = URL.createObjectURL(compressedFile);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'compressed_' + originalFile.name;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+</html>
+
