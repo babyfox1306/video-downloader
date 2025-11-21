@@ -103,19 +103,8 @@ export default function DownloaderPage() {
   };
 
   const downloadTikTok = async (url: string) => {
-    // Dùng API có CORS hoặc CORS proxy
+    // Dùng CORS proxy cho tất cả APIs
     const apis = [
-      {
-        url: `https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`,
-        useProxy: false,
-        parser: (data: any) => ({
-          downloadUrl: data.video?.noWatermark || data.video?.watermark || data.video?.play,
-          thumbnail: data.cover || data.video?.cover,
-          title: data.title || data.video?.title || "TikTok Video",
-          author: data.author || data.video?.author || "Unknown",
-          noWatermark: !!data.video?.noWatermark,
-        }),
-      },
       {
         url: `https://tikwm.com/api?url=${encodeURIComponent(url)}`,
         useProxy: true,
@@ -136,6 +125,17 @@ export default function DownloaderPage() {
           title: data.data?.title || data.title || "TikTok Video",
           author: data.data?.author?.nickname || data.data?.author?.unique_id || data.author || "Unknown",
           noWatermark: true,
+        }),
+      },
+      {
+        url: `https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`,
+        useProxy: true,
+        parser: (data: any) => ({
+          downloadUrl: data.video?.noWatermark || data.video?.watermark || data.video?.play,
+          thumbnail: data.cover || data.video?.cover,
+          title: data.title || data.video?.title || "TikTok Video",
+          author: data.author || data.video?.author || "Unknown",
+          noWatermark: !!data.video?.noWatermark,
         }),
       },
     ];

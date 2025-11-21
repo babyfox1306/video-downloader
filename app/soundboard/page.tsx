@@ -2,8 +2,10 @@
 
 import { useState, useMemo, useRef } from "react";
 
-// 50 sounds thật - dùng các nguồn free thực sự hoạt động (tested)
-// Note: Một số có thể bị CORS, nhưng đa số sẽ hoạt động
+// CORS Proxy cho sounds
+const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+
+// 50 sounds thật - dùng CORS proxy để bypass CORS
 const SOUNDS = [
   // Game sounds - dùng các nguồn public
   { id: 1, name: "Game Over", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/game_over.mp3", category: "game" },
@@ -125,9 +127,28 @@ export default function SoundboardPage() {
     }
 
     try {
+      // Dùng CORS proxy nếu URL bị chặn CORS
+      let audioUrl = sound.url;
+      
+      // Kiểm tra nếu URL có thể bị CORS (myinstants, zapsplat, etc.)
+      if (sound.url.includes("myinstants.com") || sound.url.includes("zapsplat.com") || sound.url.includes("freesound.org")) {
+        // Thử dùng CORS proxy
+        try {
+          const proxyUrl = `${CORS_PROXY}${encodeURIComponent(sound.url)}`;
+          // Test proxy trước
+          const testResponse = await fetch(proxyUrl, { method: "HEAD" }).catch(() => null);
+          if (testResponse && testResponse.ok) {
+            audioUrl = proxyUrl;
+          }
+        } catch (e) {
+          // Nếu proxy fail, dùng URL gốc
+          console.log("CORS proxy failed, using original URL");
+        }
+      }
+      
       // Set source if changed
-      if (audio.src !== sound.url) {
-        audio.src = sound.url;
+      if (audio.src !== audioUrl) {
+        audio.src = audioUrl;
       }
       
       // Reset and play
