@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "ZavClip Face Swap - Coming Soon",
-  description: "ZavClip Face Swap - Swap faces in videos instantly. Coming in 24h!",
+  description: "ZavClip Face Swap - Swap faces in videos instantly. Coming soon!",
 };
 
 export default function FaceSwapPage() {
@@ -14,27 +14,17 @@ export default function FaceSwapPage() {
         </h1>
         
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-12 mb-8">
-          <p className="text-4xl font-bold mb-8 text-gray-900 dark:text-white">
-            Coming in 24h
-          </p>
-          
-          <a
-            href="https://ko-fi.com/kkamedia"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block"
-          >
-            <img
-              height="60"
-              style={{ border: 0, height: "60px" }}
-              src="https://storage.ko-fi.com/cdn/kofi2.png?v=3"
-              alt="Buy Me a Coffee at ko-fi.com"
-              className="mx-auto hover:opacity-90 transition-opacity"
-            />
-          </a>
+          <div className="mb-6">
+            <div className="inline-block animate-spin text-6xl mb-4">⚡</div>
+            <p className="text-3xl font-bold mb-4 text-gray-900 dark:text-white">
+              Đang làm rất nhanh, bà con chờ tí nhé ❤
+            </p>
+            <p className="text-lg text-gray-600 dark:text-gray-400">
+              Tính năng Face Swap đang được phát triển, sẽ ra mắt sớm nhất có thể!
+            </p>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
