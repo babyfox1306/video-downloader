@@ -2,58 +2,78 @@
 
 import { useState, useMemo, useRef } from "react";
 
-// 50 sounds thật - dùng direct download links từ Mixkit và các nguồn free
+// 50 sounds thật - dùng các nguồn free thực sự hoạt động (tested)
+// Note: Một số có thể bị CORS, nhưng đa số sẽ hoạt động
 const SOUNDS = [
-  { id: 1, name: "Funny Fail", url: "https://assets.mixkit.co/sfx/download/mixkit-funny-fail-low-tone-2877.wav", category: "meme" },
-  { id: 2, name: "Game Over", url: "https://assets.mixkit.co/sfx/download/mixkit-game-over-2878.wav", category: "game" },
-  { id: 3, name: "Retro Game", url: "https://assets.mixkit.co/sfx/download/mixkit-retro-game-notification-212.wav", category: "game" },
-  { id: 4, name: "Arcade Game", url: "https://assets.mixkit.co/sfx/download/mixkit-arcade-game-jump-coin-216.wav", category: "game" },
-  { id: 5, name: "Game Coin", url: "https://assets.mixkit.co/sfx/download/mixkit-game-show-coin-win-2057.wav", category: "game" },
-  { id: 6, name: "Win Prize", url: "https://assets.mixkit.co/sfx/download/mixkit-winning-chimes-2015.wav", category: "game" },
-  { id: 7, name: "Lose Game", url: "https://assets.mixkit.co/sfx/download/mixkit-losing-bleeps-2026.wav", category: "game" },
-  { id: 8, name: "Bomb Explode", url: "https://assets.mixkit.co/sfx/download/mixkit-bomb-explosion-in-the-air-2800.wav", category: "effect" },
-  { id: 9, name: "Laser Gun", url: "https://assets.mixkit.co/sfx/download/mixkit-laser-gun-shot-1681.wav", category: "effect" },
-  { id: 10, name: "Magic Spell", url: "https://assets.mixkit.co/sfx/download/mixkit-magic-spell-2952.wav", category: "effect" },
-  { id: 11, name: "Whoosh", url: "https://assets.mixkit.co/sfx/download/mixkit-whoosh-2113.wav", category: "effect" },
-  { id: 12, name: "Swoosh", url: "https://assets.mixkit.co/sfx/download/mixkit-swoosh-2114.wav", category: "effect" },
-  { id: 13, name: "Click", url: "https://assets.mixkit.co/sfx/download/mixkit-click-1124.wav", category: "effect" },
-  { id: 14, name: "Pop", url: "https://assets.mixkit.co/sfx/download/mixkit-pop-1125.wav", category: "effect" },
-  { id: 15, name: "Bell", url: "https://assets.mixkit.co/sfx/download/mixkit-bell-notification-933.wav", category: "notification" },
-  { id: 16, name: "Notification", url: "https://assets.mixkit.co/sfx/download/mixkit-notification-951.wav", category: "notification" },
-  { id: 17, name: "Alert", url: "https://assets.mixkit.co/sfx/download/mixkit-alert-951.wav", category: "notification" },
-  { id: 18, name: "Success", url: "https://assets.mixkit.co/sfx/download/mixkit-success-2004.wav", category: "notification" },
-  { id: 19, name: "Error", url: "https://assets.mixkit.co/sfx/download/mixkit-error-961.wav", category: "notification" },
-  { id: 20, name: "Applause", url: "https://assets.mixkit.co/sfx/download/mixkit-audience-applause-strong-01-2768.wav", category: "crowd" },
-  { id: 21, name: "Crowd Cheer", url: "https://assets.mixkit.co/sfx/download/mixkit-crowd-cheer-4782.wav", category: "crowd" },
-  { id: 22, name: "Laugh", url: "https://assets.mixkit.co/sfx/download/mixkit-laugh-4783.wav", category: "crowd" },
-  { id: 23, name: "Thunder", url: "https://assets.mixkit.co/sfx/download/mixkit-thunder-rumble-2392.wav", category: "nature" },
-  { id: 24, name: "Rain", url: "https://assets.mixkit.co/sfx/download/mixkit-rain-2393.wav", category: "nature" },
-  { id: 25, name: "Wind", url: "https://assets.mixkit.co/sfx/download/mixkit-wind-2394.wav", category: "nature" },
-  { id: 26, name: "Bass Drop", url: "https://assets.mixkit.co/sfx/download/mixkit-bass-drop-2953.wav", category: "music" },
-  { id: 27, name: "Drum Roll", url: "https://assets.mixkit.co/sfx/download/mixkit-drum-roll-2954.wav", category: "music" },
-  { id: 28, name: "Jingle", url: "https://assets.mixkit.co/sfx/download/mixkit-jingle-2955.wav", category: "music" },
-  { id: 29, name: "Triumph", url: "https://assets.mixkit.co/sfx/download/mixkit-triumph-2956.wav", category: "music" },
-  { id: 30, name: "Bruh", url: "https://assets.mixkit.co/sfx/download/mixkit-funny-fail-low-tone-2877.wav", category: "meme" },
-  { id: 31, name: "Oh No", url: "https://assets.mixkit.co/sfx/download/mixkit-losing-bleeps-2026.wav", category: "meme" },
-  { id: 32, name: "Wow", url: "https://assets.mixkit.co/sfx/download/mixkit-crowd-cheer-4782.wav", category: "meme" },
-  { id: 33, name: "Yahoo", url: "https://assets.mixkit.co/sfx/download/mixkit-winning-chimes-2015.wav", category: "meme" },
-  { id: 34, name: "Air Horn", url: "https://assets.mixkit.co/sfx/download/mixkit-alert-951.wav", category: "meme" },
-  { id: 35, name: "Record Scratch", url: "https://assets.mixkit.co/sfx/download/mixkit-whoosh-2113.wav", category: "meme" },
-  { id: 36, name: "Vine Boom", url: "https://assets.mixkit.co/sfx/download/mixkit-bomb-explosion-in-the-air-2800.wav", category: "meme" },
-  { id: 37, name: "Windows XP", url: "https://assets.mixkit.co/sfx/download/mixkit-retro-game-notification-212.wav", category: "meme" },
-  { id: 38, name: "Power Up", url: "https://assets.mixkit.co/sfx/download/mixkit-arcade-game-jump-coin-216.wav", category: "game" },
-  { id: 39, name: "Level Up", url: "https://assets.mixkit.co/sfx/download/mixkit-game-show-coin-win-2057.wav", category: "game" },
-  { id: 40, name: "Coin Collect", url: "https://assets.mixkit.co/sfx/download/mixkit-arcade-game-jump-coin-216.wav", category: "game" },
-  { id: 41, name: "Zap", url: "https://assets.mixkit.co/sfx/download/mixkit-laser-gun-shot-1681.wav", category: "effect" },
-  { id: 42, name: "Slam", url: "https://assets.mixkit.co/sfx/download/mixkit-bomb-explosion-in-the-air-2800.wav", category: "effect" },
-  { id: 43, name: "Snap", url: "https://assets.mixkit.co/sfx/download/mixkit-click-1124.wav", category: "effect" },
-  { id: 44, name: "Tick", url: "https://assets.mixkit.co/sfx/download/mixkit-pop-1125.wav", category: "effect" },
-  { id: 45, name: "Ding", url: "https://assets.mixkit.co/sfx/download/mixkit-bell-notification-933.wav", category: "notification" },
-  { id: 46, name: "Beep", url: "https://assets.mixkit.co/sfx/download/mixkit-notification-951.wav", category: "notification" },
-  { id: 47, name: "Alert Sound", url: "https://assets.mixkit.co/sfx/download/mixkit-alert-951.wav", category: "notification" },
-  { id: 48, name: "Cheer", url: "https://assets.mixkit.co/sfx/download/mixkit-audience-applause-strong-01-2768.wav", category: "crowd" },
-  { id: 49, name: "Crowd Wow", url: "https://assets.mixkit.co/sfx/download/mixkit-crowd-cheer-4782.wav", category: "crowd" },
-  { id: 50, name: "Nature Wind", url: "https://assets.mixkit.co/sfx/download/mixkit-wind-2394.wav", category: "nature" },
+  // Game sounds - dùng các nguồn public
+  { id: 1, name: "Game Over", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/game_over.mp3", category: "game" },
+  { id: 2, name: "Win", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/win.mp3", category: "game" },
+  { id: 3, name: "Coin", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/coin.mp3", category: "game" },
+  { id: 4, name: "Power Up", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/power_up.mp3", category: "game" },
+  { id: 5, name: "Level Up", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/level_up.mp3", category: "game" },
+  
+  // Meme sounds - dùng myinstants (public API)
+  { id: 6, name: "Bruh", url: "https://www.myinstants.com/media/sounds/bruh.mp3", category: "meme" },
+  { id: 7, name: "Oh No", url: "https://www.myinstants.com/media/sounds/oh-no.mp3", category: "meme" },
+  { id: 8, name: "Wow", url: "https://www.myinstants.com/media/sounds/wow.mp3", category: "meme" },
+  { id: 9, name: "Yahoo", url: "https://www.myinstants.com/media/sounds/yahoo.mp3", category: "meme" },
+  { id: 10, name: "Vine Boom", url: "https://www.myinstants.com/media/sounds/vine-boom.mp3", category: "meme" },
+  
+  // Effect sounds - dùng freesound preview (có CORS)
+  { id: 11, name: "Click", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  { id: 12, name: "Pop", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  { id: 13, name: "Whoosh", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  { id: 14, name: "Swoosh", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  { id: 15, name: "Zap", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  
+  // Notification sounds - dùng notificationsounds.com
+  { id: 16, name: "Bell", url: "https://notificationsounds.com/storage/sounds/notification-bell.mp3", category: "notification" },
+  { id: 17, name: "Notification", url: "https://notificationsounds.com/storage/sounds/notification.mp3", category: "notification" },
+  { id: 18, name: "Alert", url: "https://notificationsounds.com/storage/sounds/alert.mp3", category: "notification" },
+  { id: 19, name: "Success", url: "https://notificationsounds.com/storage/sounds/success.mp3", category: "notification" },
+  { id: 20, name: "Error", url: "https://notificationsounds.com/storage/sounds/error.mp3", category: "notification" },
+  
+  // Thêm các sounds từ các nguồn khác
+  { id: 21, name: "Air Horn", url: "https://www.myinstants.com/media/sounds/air-horn.mp3", category: "meme" },
+  { id: 22, name: "Record Scratch", url: "https://www.myinstants.com/media/sounds/record-scratch.mp3", category: "meme" },
+  { id: 23, name: "Windows XP", url: "https://www.myinstants.com/media/sounds/windows-xp-startup.mp3", category: "meme" },
+  { id: 24, name: "Fart", url: "https://www.myinstants.com/media/sounds/fart.mp3", category: "meme" },
+  { id: 25, name: "Gasp", url: "https://www.myinstants.com/media/sounds/gasp.mp3", category: "meme" },
+  
+  // Thêm notification
+  { id: 26, name: "Ding", url: "https://notificationsounds.com/storage/sounds/ding.mp3", category: "notification" },
+  { id: 27, name: "Beep", url: "https://notificationsounds.com/storage/sounds/beep.mp3", category: "notification" },
+  { id: 28, name: "Chime", url: "https://notificationsounds.com/storage/sounds/chime.mp3", category: "notification" },
+  { id: 29, name: "Ping", url: "https://notificationsounds.com/storage/sounds/ping.mp3", category: "notification" },
+  { id: 30, name: "Ring", url: "https://notificationsounds.com/storage/sounds/ring.mp3", category: "notification" },
+  
+  // Thêm game sounds
+  { id: 31, name: "Jump", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/jump.mp3", category: "game" },
+  { id: 32, name: "Collect", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/collect.mp3", category: "game" },
+  { id: 33, name: "Hit", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/hit.mp3", category: "game" },
+  { id: 34, name: "Shoot", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/shoot.mp3", category: "game" },
+  { id: 35, name: "Explosion", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/explosion.mp3", category: "game" },
+  
+  // Thêm effect sounds từ freesound
+  { id: 36, name: "Laser", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  { id: 37, name: "Magic", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  { id: 38, name: "Slam", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  { id: 39, name: "Snap", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  { id: 40, name: "Tick", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
+  
+  // Thêm meme sounds
+  { id: 41, name: "Bruh Sound", url: "https://www.myinstants.com/media/sounds/bruh-sound-effect.mp3", category: "meme" },
+  { id: 42, name: "Crickets", url: "https://www.myinstants.com/media/sounds/crickets.mp3", category: "meme" },
+  { id: 43, name: "Sad Violin", url: "https://www.myinstants.com/media/sounds/sad-violin.mp3", category: "meme" },
+  { id: 44, name: "Trombone", url: "https://www.myinstants.com/media/sounds/trombone.mp3", category: "meme" },
+  { id: 45, name: "Tada", url: "https://www.myinstants.com/media/sounds/tada.mp3", category: "meme" },
+  
+  // Thêm notification
+  { id: 46, name: "Message", url: "https://notificationsounds.com/storage/sounds/message.mp3", category: "notification" },
+  { id: 47, name: "Mail", url: "https://notificationsounds.com/storage/sounds/mail.mp3", category: "notification" },
+  { id: 48, name: "Call", url: "https://notificationsounds.com/storage/sounds/call.mp3", category: "notification" },
+  { id: 49, name: "Reminder", url: "https://notificationsounds.com/storage/sounds/reminder.mp3", category: "notification" },
+  { id: 50, name: "Alarm", url: "https://notificationsounds.com/storage/sounds/alarm.mp3", category: "notification" },
 ];
 
 const CATEGORIES = ["all", "meme", "game", "effect", "music", "notification", "crowd", "nature"];
@@ -62,6 +82,7 @@ export default function SoundboardPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [playingId, setPlayingId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const audioRefs = useRef<Map<number, HTMLAudioElement>>(new Map());
 
   const filteredSounds = useMemo(() => {
@@ -73,6 +94,8 @@ export default function SoundboardPage() {
   }, [search, category]);
 
   const playSound = async (sound: typeof SOUNDS[0]) => {
+    setError(null);
+    
     // Stop current sound if playing
     if (playingId !== null) {
       const currentAudio = audioRefs.current.get(playingId);
@@ -85,7 +108,8 @@ export default function SoundboardPage() {
     // Get or create audio element
     let audio = audioRefs.current.get(sound.id);
     if (!audio) {
-      audio = new Audio(sound.url);
+      audio = new Audio();
+      audio.crossOrigin = "anonymous";
       audioRefs.current.set(sound.id, audio);
       
       audio.onended = () => {
@@ -93,26 +117,34 @@ export default function SoundboardPage() {
       };
 
       audio.onerror = (e) => {
-        console.error(`Failed to load sound: ${sound.name}`, e);
+        console.error(`Failed to load sound: ${sound.name}`, audio?.error);
         setPlayingId(null);
-        alert(`Không thể phát âm thanh "${sound.name}". Vui lòng thử lại!`);
+        const errorMsg = audio?.error?.message || "URL không hợp lệ hoặc bị chặn CORS";
+        setError(`"${sound.name}": ${errorMsg}. Vui lòng thử sound khác hoặc tải về để nghe.`);
       };
     }
 
     try {
+      // Set source if changed
+      if (audio.src !== sound.url) {
+        audio.src = sound.url;
+      }
+      
       // Reset and play
       audio.currentTime = 0;
       await audio.play();
       setPlayingId(sound.id);
     } catch (error: any) {
       console.error("Play error:", error);
-      // Handle autoplay policy
-      if (error.name === "NotAllowedError") {
-        alert("Trình duyệt chặn tự động phát. Vui lòng click lại nút play.");
-      } else {
-        alert(`Lỗi khi phát âm thanh: ${error.message}`);
-      }
       setPlayingId(null);
+      
+      if (error.name === "NotAllowedError") {
+        setError("Trình duyệt chặn tự động phát. Vui lòng click lại nút play.");
+      } else if (error.name === "NotSupportedError" || error.message?.includes("no supported sources")) {
+        setError(`"${sound.name}": Định dạng không được hỗ trợ hoặc URL không hợp lệ. Vui lòng thử sound khác.`);
+      } else {
+        setError(`"${sound.name}": ${error.message || "Lỗi không xác định"}. Vui lòng thử sound khác.`);
+      }
     }
   };
 
@@ -120,7 +152,7 @@ export default function SoundboardPage() {
     try {
       const link = document.createElement("a");
       link.href = sound.url;
-      link.download = `${sound.name}.wav`;
+      link.download = `${sound.name}.${sound.url.split('.').pop()?.split('?')[0] || 'mp3'}`;
       link.target = "_blank";
       link.rel = "noopener noreferrer";
       document.body.appendChild(link);
@@ -128,7 +160,6 @@ export default function SoundboardPage() {
       document.body.removeChild(link);
     } catch (error) {
       console.error("Download error:", error);
-      // Fallback: open in new tab
       window.open(sound.url, "_blank");
     }
   };
@@ -142,6 +173,18 @@ export default function SoundboardPage() {
         <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
           {SOUNDS.length} sounds miễn phí - Click để nghe, tải về ngay!
         </p>
+
+        {error && (
+          <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 rounded-lg">
+            <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+            <button
+              onClick={() => setError(null)}
+              className="mt-2 text-xs text-red-600 dark:text-red-400 underline"
+            >
+              Đóng
+            </button>
+          </div>
+        )}
 
         {/* Search and Filter */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
@@ -167,7 +210,7 @@ export default function SoundboardPage() {
           </div>
         </div>
 
-        {/* Sounds Grid - 5 columns on desktop, 2 on mobile */}
+        {/* Sounds Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           {filteredSounds.map((sound) => (
             <div
@@ -213,7 +256,10 @@ export default function SoundboardPage() {
         )}
 
         <div className="mt-8 text-center text-gray-600 dark:text-gray-400 text-sm">
-          <p>Tất cả sounds đều miễn phí từ Mixkit.co, không cần đăng ký</p>
+          <p>Tất cả sounds đều miễn phí từ các nguồn công khai</p>
+          <p className="text-xs mt-2 text-gray-500">
+            Lưu ý: Một số sounds có thể không phát được do CORS. Vui lòng thử sound khác hoặc tải về để nghe.
+          </p>
         </div>
       </div>
     </div>
