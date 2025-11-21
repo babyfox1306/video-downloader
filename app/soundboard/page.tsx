@@ -1,59 +1,59 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 
-// 50 sounds thật từ Mixkit.co (100% free license, không cần attribution)
+// 50 sounds thật - dùng direct download links từ Mixkit và các nguồn free
 const SOUNDS = [
-  { id: 1, name: "Funny Fail", url: "https://assets.mixkit.co/sfx/preview/mixkit-funny-fail-low-tone-2877.mp3", category: "meme" },
-  { id: 2, name: "Game Over", url: "https://assets.mixkit.co/sfx/preview/mixkit-game-over-2878.mp3", category: "game" },
-  { id: 3, name: "Retro Game", url: "https://assets.mixkit.co/sfx/preview/mixkit-retro-game-notification-212.mp3", category: "game" },
-  { id: 4, name: "Arcade Game", url: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3", category: "game" },
-  { id: 5, name: "Game Coin", url: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-coin-win-2057.mp3", category: "game" },
-  { id: 6, name: "Win Prize", url: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3", category: "game" },
-  { id: 7, name: "Lose Game", url: "https://assets.mixkit.co/sfx/preview/mixkit-losing-bleeps-2026.mp3", category: "game" },
-  { id: 8, name: "Bomb Explode", url: "https://assets.mixkit.co/sfx/preview/mixkit-bomb-explosion-in-the-air-2800.mp3", category: "effect" },
-  { id: 9, name: "Laser Gun", url: "https://assets.mixkit.co/sfx/preview/mixkit-laser-gun-shot-1681.mp3", category: "effect" },
-  { id: 10, name: "Magic Spell", url: "https://assets.mixkit.co/sfx/preview/mixkit-magic-spell-2952.mp3", category: "effect" },
-  { id: 11, name: "Whoosh", url: "https://assets.mixkit.co/sfx/preview/mixkit-whoosh-2113.mp3", category: "effect" },
-  { id: 12, name: "Swoosh", url: "https://assets.mixkit.co/sfx/preview/mixkit-swoosh-2114.mp3", category: "effect" },
-  { id: 13, name: "Click", url: "https://assets.mixkit.co/sfx/preview/mixkit-click-1124.mp3", category: "effect" },
-  { id: 14, name: "Pop", url: "https://assets.mixkit.co/sfx/preview/mixkit-pop-1125.mp3", category: "effect" },
-  { id: 15, name: "Bell", url: "https://assets.mixkit.co/sfx/preview/mixkit-bell-notification-933.mp3", category: "notification" },
-  { id: 16, name: "Notification", url: "https://assets.mixkit.co/sfx/preview/mixkit-notification-951.mp3", category: "notification" },
-  { id: 17, name: "Alert", url: "https://assets.mixkit.co/sfx/preview/mixkit-alert-951.mp3", category: "notification" },
-  { id: 18, name: "Success", url: "https://assets.mixkit.co/sfx/preview/mixkit-success-2004.mp3", category: "notification" },
-  { id: 19, name: "Error", url: "https://assets.mixkit.co/sfx/preview/mixkit-error-961.mp3", category: "notification" },
-  { id: 20, name: "Applause", url: "https://assets.mixkit.co/sfx/preview/mixkit-audience-applause-strong-01-2768.mp3", category: "crowd" },
-  { id: 21, name: "Crowd Cheer", url: "https://assets.mixkit.co/sfx/preview/mixkit-crowd-cheer-4782.mp3", category: "crowd" },
-  { id: 22, name: "Laugh", url: "https://assets.mixkit.co/sfx/preview/mixkit-laugh-4783.mp3", category: "crowd" },
-  { id: 23, name: "Thunder", url: "https://assets.mixkit.co/sfx/preview/mixkit-thunder-rumble-2392.mp3", category: "nature" },
-  { id: 24, name: "Rain", url: "https://assets.mixkit.co/sfx/preview/mixkit-rain-2393.mp3", category: "nature" },
-  { id: 25, name: "Wind", url: "https://assets.mixkit.co/sfx/preview/mixkit-wind-2394.mp3", category: "nature" },
-  { id: 26, name: "Bass Drop", url: "https://assets.mixkit.co/sfx/preview/mixkit-bass-drop-2953.mp3", category: "music" },
-  { id: 27, name: "Drum Roll", url: "https://assets.mixkit.co/sfx/preview/mixkit-drum-roll-2954.mp3", category: "music" },
-  { id: 28, name: "Jingle", url: "https://assets.mixkit.co/sfx/preview/mixkit-jingle-2955.mp3", category: "music" },
-  { id: 29, name: "Triumph", url: "https://assets.mixkit.co/sfx/preview/mixkit-triumph-2956.mp3", category: "music" },
-  { id: 30, name: "Bruh", url: "https://assets.mixkit.co/sfx/preview/mixkit-funny-fail-low-tone-2877.mp3", category: "meme" },
-  { id: 31, name: "Oh No", url: "https://assets.mixkit.co/sfx/preview/mixkit-losing-bleeps-2026.mp3", category: "meme" },
-  { id: 32, name: "Wow", url: "https://assets.mixkit.co/sfx/preview/mixkit-crowd-cheer-4782.mp3", category: "meme" },
-  { id: 33, name: "Yahoo", url: "https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3", category: "meme" },
-  { id: 34, name: "Air Horn", url: "https://assets.mixkit.co/sfx/preview/mixkit-alert-951.mp3", category: "meme" },
-  { id: 35, name: "Record Scratch", url: "https://assets.mixkit.co/sfx/preview/mixkit-whoosh-2113.mp3", category: "meme" },
-  { id: 36, name: "Vine Boom", url: "https://assets.mixkit.co/sfx/preview/mixkit-bomb-explosion-in-the-air-2800.mp3", category: "meme" },
-  { id: 37, name: "Windows XP", url: "https://assets.mixkit.co/sfx/preview/mixkit-retro-game-notification-212.mp3", category: "meme" },
-  { id: 38, name: "Power Up", url: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3", category: "game" },
-  { id: 39, name: "Level Up", url: "https://assets.mixkit.co/sfx/preview/mixkit-game-show-coin-win-2057.mp3", category: "game" },
-  { id: 40, name: "Coin Collect", url: "https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3", category: "game" },
-  { id: 41, name: "Zap", url: "https://assets.mixkit.co/sfx/preview/mixkit-laser-gun-shot-1681.mp3", category: "effect" },
-  { id: 42, name: "Slam", url: "https://assets.mixkit.co/sfx/preview/mixkit-bomb-explosion-in-the-air-2800.mp3", category: "effect" },
-  { id: 43, name: "Snap", url: "https://assets.mixkit.co/sfx/preview/mixkit-click-1124.mp3", category: "effect" },
-  { id: 44, name: "Tick", url: "https://assets.mixkit.co/sfx/preview/mixkit-pop-1125.mp3", category: "effect" },
-  { id: 45, name: "Ding", url: "https://assets.mixkit.co/sfx/preview/mixkit-bell-notification-933.mp3", category: "notification" },
-  { id: 46, name: "Beep", url: "https://assets.mixkit.co/sfx/preview/mixkit-notification-951.mp3", category: "notification" },
-  { id: 47, name: "Alert Sound", url: "https://assets.mixkit.co/sfx/preview/mixkit-alert-951.mp3", category: "notification" },
-  { id: 48, name: "Cheer", url: "https://assets.mixkit.co/sfx/preview/mixkit-audience-applause-strong-01-2768.mp3", category: "crowd" },
-  { id: 49, name: "Crowd Wow", url: "https://assets.mixkit.co/sfx/preview/mixkit-crowd-cheer-4782.mp3", category: "crowd" },
-  { id: 50, name: "Nature Wind", url: "https://assets.mixkit.co/sfx/preview/mixkit-wind-2394.mp3", category: "nature" },
+  { id: 1, name: "Funny Fail", url: "https://assets.mixkit.co/sfx/download/mixkit-funny-fail-low-tone-2877.wav", category: "meme" },
+  { id: 2, name: "Game Over", url: "https://assets.mixkit.co/sfx/download/mixkit-game-over-2878.wav", category: "game" },
+  { id: 3, name: "Retro Game", url: "https://assets.mixkit.co/sfx/download/mixkit-retro-game-notification-212.wav", category: "game" },
+  { id: 4, name: "Arcade Game", url: "https://assets.mixkit.co/sfx/download/mixkit-arcade-game-jump-coin-216.wav", category: "game" },
+  { id: 5, name: "Game Coin", url: "https://assets.mixkit.co/sfx/download/mixkit-game-show-coin-win-2057.wav", category: "game" },
+  { id: 6, name: "Win Prize", url: "https://assets.mixkit.co/sfx/download/mixkit-winning-chimes-2015.wav", category: "game" },
+  { id: 7, name: "Lose Game", url: "https://assets.mixkit.co/sfx/download/mixkit-losing-bleeps-2026.wav", category: "game" },
+  { id: 8, name: "Bomb Explode", url: "https://assets.mixkit.co/sfx/download/mixkit-bomb-explosion-in-the-air-2800.wav", category: "effect" },
+  { id: 9, name: "Laser Gun", url: "https://assets.mixkit.co/sfx/download/mixkit-laser-gun-shot-1681.wav", category: "effect" },
+  { id: 10, name: "Magic Spell", url: "https://assets.mixkit.co/sfx/download/mixkit-magic-spell-2952.wav", category: "effect" },
+  { id: 11, name: "Whoosh", url: "https://assets.mixkit.co/sfx/download/mixkit-whoosh-2113.wav", category: "effect" },
+  { id: 12, name: "Swoosh", url: "https://assets.mixkit.co/sfx/download/mixkit-swoosh-2114.wav", category: "effect" },
+  { id: 13, name: "Click", url: "https://assets.mixkit.co/sfx/download/mixkit-click-1124.wav", category: "effect" },
+  { id: 14, name: "Pop", url: "https://assets.mixkit.co/sfx/download/mixkit-pop-1125.wav", category: "effect" },
+  { id: 15, name: "Bell", url: "https://assets.mixkit.co/sfx/download/mixkit-bell-notification-933.wav", category: "notification" },
+  { id: 16, name: "Notification", url: "https://assets.mixkit.co/sfx/download/mixkit-notification-951.wav", category: "notification" },
+  { id: 17, name: "Alert", url: "https://assets.mixkit.co/sfx/download/mixkit-alert-951.wav", category: "notification" },
+  { id: 18, name: "Success", url: "https://assets.mixkit.co/sfx/download/mixkit-success-2004.wav", category: "notification" },
+  { id: 19, name: "Error", url: "https://assets.mixkit.co/sfx/download/mixkit-error-961.wav", category: "notification" },
+  { id: 20, name: "Applause", url: "https://assets.mixkit.co/sfx/download/mixkit-audience-applause-strong-01-2768.wav", category: "crowd" },
+  { id: 21, name: "Crowd Cheer", url: "https://assets.mixkit.co/sfx/download/mixkit-crowd-cheer-4782.wav", category: "crowd" },
+  { id: 22, name: "Laugh", url: "https://assets.mixkit.co/sfx/download/mixkit-laugh-4783.wav", category: "crowd" },
+  { id: 23, name: "Thunder", url: "https://assets.mixkit.co/sfx/download/mixkit-thunder-rumble-2392.wav", category: "nature" },
+  { id: 24, name: "Rain", url: "https://assets.mixkit.co/sfx/download/mixkit-rain-2393.wav", category: "nature" },
+  { id: 25, name: "Wind", url: "https://assets.mixkit.co/sfx/download/mixkit-wind-2394.wav", category: "nature" },
+  { id: 26, name: "Bass Drop", url: "https://assets.mixkit.co/sfx/download/mixkit-bass-drop-2953.wav", category: "music" },
+  { id: 27, name: "Drum Roll", url: "https://assets.mixkit.co/sfx/download/mixkit-drum-roll-2954.wav", category: "music" },
+  { id: 28, name: "Jingle", url: "https://assets.mixkit.co/sfx/download/mixkit-jingle-2955.wav", category: "music" },
+  { id: 29, name: "Triumph", url: "https://assets.mixkit.co/sfx/download/mixkit-triumph-2956.wav", category: "music" },
+  { id: 30, name: "Bruh", url: "https://assets.mixkit.co/sfx/download/mixkit-funny-fail-low-tone-2877.wav", category: "meme" },
+  { id: 31, name: "Oh No", url: "https://assets.mixkit.co/sfx/download/mixkit-losing-bleeps-2026.wav", category: "meme" },
+  { id: 32, name: "Wow", url: "https://assets.mixkit.co/sfx/download/mixkit-crowd-cheer-4782.wav", category: "meme" },
+  { id: 33, name: "Yahoo", url: "https://assets.mixkit.co/sfx/download/mixkit-winning-chimes-2015.wav", category: "meme" },
+  { id: 34, name: "Air Horn", url: "https://assets.mixkit.co/sfx/download/mixkit-alert-951.wav", category: "meme" },
+  { id: 35, name: "Record Scratch", url: "https://assets.mixkit.co/sfx/download/mixkit-whoosh-2113.wav", category: "meme" },
+  { id: 36, name: "Vine Boom", url: "https://assets.mixkit.co/sfx/download/mixkit-bomb-explosion-in-the-air-2800.wav", category: "meme" },
+  { id: 37, name: "Windows XP", url: "https://assets.mixkit.co/sfx/download/mixkit-retro-game-notification-212.wav", category: "meme" },
+  { id: 38, name: "Power Up", url: "https://assets.mixkit.co/sfx/download/mixkit-arcade-game-jump-coin-216.wav", category: "game" },
+  { id: 39, name: "Level Up", url: "https://assets.mixkit.co/sfx/download/mixkit-game-show-coin-win-2057.wav", category: "game" },
+  { id: 40, name: "Coin Collect", url: "https://assets.mixkit.co/sfx/download/mixkit-arcade-game-jump-coin-216.wav", category: "game" },
+  { id: 41, name: "Zap", url: "https://assets.mixkit.co/sfx/download/mixkit-laser-gun-shot-1681.wav", category: "effect" },
+  { id: 42, name: "Slam", url: "https://assets.mixkit.co/sfx/download/mixkit-bomb-explosion-in-the-air-2800.wav", category: "effect" },
+  { id: 43, name: "Snap", url: "https://assets.mixkit.co/sfx/download/mixkit-click-1124.wav", category: "effect" },
+  { id: 44, name: "Tick", url: "https://assets.mixkit.co/sfx/download/mixkit-pop-1125.wav", category: "effect" },
+  { id: 45, name: "Ding", url: "https://assets.mixkit.co/sfx/download/mixkit-bell-notification-933.wav", category: "notification" },
+  { id: 46, name: "Beep", url: "https://assets.mixkit.co/sfx/download/mixkit-notification-951.wav", category: "notification" },
+  { id: 47, name: "Alert Sound", url: "https://assets.mixkit.co/sfx/download/mixkit-alert-951.wav", category: "notification" },
+  { id: 48, name: "Cheer", url: "https://assets.mixkit.co/sfx/download/mixkit-audience-applause-strong-01-2768.wav", category: "crowd" },
+  { id: 49, name: "Crowd Wow", url: "https://assets.mixkit.co/sfx/download/mixkit-crowd-cheer-4782.wav", category: "crowd" },
+  { id: 50, name: "Nature Wind", url: "https://assets.mixkit.co/sfx/download/mixkit-wind-2394.wav", category: "nature" },
 ];
 
 const CATEGORIES = ["all", "meme", "game", "effect", "music", "notification", "crowd", "nature"];
@@ -62,6 +62,7 @@ export default function SoundboardPage() {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("all");
   const [playingId, setPlayingId] = useState<number | null>(null);
+  const audioRefs = useRef<Map<number, HTMLAudioElement>>(new Map());
 
   const filteredSounds = useMemo(() => {
     return SOUNDS.filter((sound) => {
@@ -71,27 +72,65 @@ export default function SoundboardPage() {
     });
   }, [search, category]);
 
-  const playSound = (sound: typeof SOUNDS[0]) => {
-    const audio = new Audio(sound.url);
-    audio.play();
-    setPlayingId(sound.id);
+  const playSound = async (sound: typeof SOUNDS[0]) => {
+    // Stop current sound if playing
+    if (playingId !== null) {
+      const currentAudio = audioRefs.current.get(playingId);
+      if (currentAudio) {
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+      }
+    }
 
-    audio.onended = () => {
-      setPlayingId(null);
-    };
+    // Get or create audio element
+    let audio = audioRefs.current.get(sound.id);
+    if (!audio) {
+      audio = new Audio(sound.url);
+      audioRefs.current.set(sound.id, audio);
+      
+      audio.onended = () => {
+        setPlayingId(null);
+      };
 
-    audio.onerror = () => {
+      audio.onerror = (e) => {
+        console.error(`Failed to load sound: ${sound.name}`, e);
+        setPlayingId(null);
+        alert(`Không thể phát âm thanh "${sound.name}". Vui lòng thử lại!`);
+      };
+    }
+
+    try {
+      // Reset and play
+      audio.currentTime = 0;
+      await audio.play();
+      setPlayingId(sound.id);
+    } catch (error: any) {
+      console.error("Play error:", error);
+      // Handle autoplay policy
+      if (error.name === "NotAllowedError") {
+        alert("Trình duyệt chặn tự động phát. Vui lòng click lại nút play.");
+      } else {
+        alert(`Lỗi khi phát âm thanh: ${error.message}`);
+      }
       setPlayingId(null);
-      console.error(`Failed to load sound: ${sound.name}`);
-    };
+    }
   };
 
   const downloadSound = (sound: typeof SOUNDS[0]) => {
-    const link = document.createElement("a");
-    link.href = sound.url;
-    link.download = `${sound.name}.mp3`;
-    link.target = "_blank";
-    link.click();
+    try {
+      const link = document.createElement("a");
+      link.href = sound.url;
+      link.download = `${sound.name}.wav`;
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Download error:", error);
+      // Fallback: open in new tab
+      window.open(sound.url, "_blank");
+    }
   };
 
   return (
@@ -148,7 +187,8 @@ export default function SoundboardPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => playSound(sound)}
-                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-semibold"
+                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-semibold disabled:opacity-50"
+                  disabled={playingId === sound.id}
                 >
                   {playingId === sound.id ? "⏸" : "▶"}
                 </button>
