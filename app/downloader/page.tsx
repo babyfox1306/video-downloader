@@ -89,7 +89,7 @@ export default function DownloaderPage() {
           },
         ]);
       } else {
-        setError("Không thể tải video. Vui lòng kiểm tra lại URL!");
+        setError("Không thể tải video. Vui lòng kiểm tra lại URL hoặc thử lại sau!");
       }
     } catch (err: any) {
       console.error("Download error:", err);
@@ -100,102 +100,189 @@ export default function DownloaderPage() {
   };
 
   const downloadTikTok = async (url: string) => {
-    // Try multiple TikTok APIs
+    // Try multiple TikTok APIs với retry
     const apis = [
-      `https://tikwm.com/api?url=${encodeURIComponent(url)}`,
-      `https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`,
+      {
+        url: `https://tikwm.com/api?url=${encodeURIComponent(url)}`,
+        parser: (data: any) => ({
+          downloadUrl: data.data?.play || data.data?.wmplay || data.data?.hdplay,
+          thumbnail: data.data?.cover || data.data?.origin_cover,
+          title: data.data?.title || data.title || "TikTok Video",
+          author: data.data?.author?.nickname || data.data?.author?.unique_id || data.author || "Unknown",
+          noWatermark: true,
+        }),
+      },
+      {
+        url: `https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`,
+        parser: (data: any) => ({
+          downloadUrl: data.video?.noWatermark || data.video?.watermark || data.video?.play,
+          thumbnail: data.cover || data.video?.cover,
+          title: data.title || data.video?.title || "TikTok Video",
+          author: data.author || data.video?.author || "Unknown",
+          noWatermark: !!data.video?.noWatermark,
+        }),
+      },
+      {
+        url: `https://api16-normal-c-useast1a.tiktokv.com/aweme/v1/feed/?aweme_id=${extractTikTokId(url)}`,
+        parser: (data: any) => {
+          const video = data?.aweme_list?.[0];
+          return {
+            downloadUrl: video?.video?.play_addr?.url_list?.[0] || video?.video?.download_addr?.url_list?.[0],
+            thumbnail: video?.video?.cover?.url_list?.[0] || video?.video?.origin_cover?.url_list?.[0],
+            title: video?.desc || "TikTok Video",
+            author: video?.author?.nickname || video?.author?.unique_id || "Unknown",
+            noWatermark: false,
+          };
+        },
+      },
     ];
 
-    for (const apiUrl of apis) {
+    for (const api of apis) {
       try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(api.url, {
+          method: "GET",
           headers: {
-            "User-Agent": "Mozilla/5.0",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Accept": "application/json",
           },
+          mode: "cors",
         });
 
         if (response.ok) {
           const data = await response.json();
+          const parsed = api.parser(data);
           
-          if (data.data?.play || data.video?.noWatermark) {
-            return {
-              downloadUrl: data.data?.play || data.video?.noWatermark,
-              thumbnail: data.data?.cover || data.cover,
-              title: data.data?.title || data.title || "TikTok Video",
-              author: data.data?.author?.nickname || data.author || "Unknown",
-              noWatermark: true,
-            };
+          if (parsed.downloadUrl) {
+            // Verify URL is accessible
+            const testResponse = await fetch(parsed.downloadUrl, { method: "HEAD", mode: "no-cors" }).catch(() => null);
+            return parsed;
           }
         }
       } catch (e) {
+        console.log(`API ${api.url} failed:`, e);
         continue;
       }
     }
-    throw new Error("Không thể tải video TikTok");
+    
+    throw new Error("Không thể tải video TikTok. Các API có thể đang bị rate limit. Vui lòng thử lại sau vài phút.");
+  };
+
+  const extractTikTokId = (url: string): string | null => {
+    const regex = /\/video\/(\d+)/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
   };
 
   const downloadInstagram = async (url: string) => {
-    try {
-      // Use saveig.app API
-      const response = await fetch(
-        `https://api.saveig.app/api/ajaxSearch`,
-        {
-          method: "POST",
+    const apis = [
+      {
+        url: `https://api.saveig.app/api/ajaxSearch`,
+        method: "POST" as const,
+        body: `q=${encodeURIComponent(url)}`,
+        parser: (data: any) => {
+          const video = data.medias?.find((m: any) => m.type === "Video");
+          return {
+            downloadUrl: video?.url,
+            thumbnail: video?.thumb || data.thumbnail,
+            title: data.title || "Instagram Reel",
+            author: data.author || "Unknown",
+            noWatermark: true,
+          };
+        },
+      },
+      {
+        url: `https://api.downloadgram.org/api/video?url=${encodeURIComponent(url)}`,
+        method: "GET" as const,
+        parser: (data: any) => ({
+          downloadUrl: data.video || data.download,
+          thumbnail: data.thumbnail || data.thumb,
+          title: data.title || "Instagram Reel",
+          author: data.author || "Unknown",
+          noWatermark: true,
+        }),
+      },
+    ];
+
+    for (const api of apis) {
+      try {
+        const response = await fetch(api.url, {
+          method: api.method,
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
             "User-Agent": "Mozilla/5.0",
           },
-          body: `q=${encodeURIComponent(url)}`,
-        }
-      );
+          body: api.body,
+          mode: "cors",
+        });
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.medias && data.medias.length > 0) {
-          const video = data.medias.find((m: any) => m.type === "Video");
-          if (video) {
-            return {
-              downloadUrl: video.url,
-              thumbnail: video.thumb,
-              title: data.title || "Instagram Reel",
-              author: data.author || "Unknown",
-              noWatermark: true,
-            };
+        if (response.ok) {
+          const data = await response.json();
+          const parsed = api.parser(data);
+          
+          if (parsed.downloadUrl) {
+            return parsed;
           }
         }
+      } catch (e) {
+        console.log(`Instagram API ${api.url} failed:`, e);
+        continue;
       }
-    } catch (e) {
-      console.error("Instagram API error:", e);
     }
-    throw new Error("Không thể tải video Instagram");
+    
+    throw new Error("Không thể tải video Instagram. Vui lòng thử lại sau.");
   };
 
   const downloadYouTube = async (url: string) => {
     const videoId = extractYouTubeId(url);
     if (!videoId) throw new Error("URL YouTube không hợp lệ");
 
-    try {
-      // Use yt-dlp wrapper API
-      const response = await fetch(
-        `https://api.vevioz.com/api/convert/mp4/${videoId}`
-      );
+    const apis = [
+      {
+        url: `https://api.vevioz.com/api/convert/mp4/${videoId}`,
+        parser: (data: any) => ({
+          downloadUrl: data.download || data.link || data.url,
+          thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+          title: data.title || "YouTube Video",
+          author: data.channel || data.author || "Unknown",
+          noWatermark: false,
+        }),
+      },
+      {
+        url: `https://yt-api.p.rapidapi.com/dl?id=${videoId}`,
+        parser: (data: any) => ({
+          downloadUrl: data.link || data.download,
+          thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+          title: data.title || "YouTube Video",
+          author: data.channel || "Unknown",
+          noWatermark: false,
+        }),
+      },
+    ];
 
-      if (response.ok) {
-        const data = await response.json();
-        if (data.download) {
-          return {
-            downloadUrl: data.download,
-            thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-            title: data.title || "YouTube Video",
-            author: data.channel || "Unknown",
-            noWatermark: false,
-          };
+    for (const api of apis) {
+      try {
+        const response = await fetch(api.url, {
+          headers: {
+            "User-Agent": "Mozilla/5.0",
+          },
+          mode: "cors",
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const parsed = api.parser(data);
+          
+          if (parsed.downloadUrl) {
+            return parsed;
+          }
         }
+      } catch (e) {
+        console.log(`YouTube API ${api.url} failed:`, e);
+        continue;
       }
-    } catch (e) {
-      console.error("YouTube API error:", e);
     }
-    throw new Error("Không thể tải video YouTube");
+    
+    throw new Error("Không thể tải video YouTube. Vui lòng thử lại sau.");
   };
 
   const extractYouTubeId = (url: string): string | null => {
@@ -278,7 +365,7 @@ export default function DownloaderPage() {
               id="url"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="https://tiktok.com/... hoặc https://instagram.com/reel/..."
+              placeholder="https://tiktok.com/... hoặc https://instagram.com/reel/... hoặc https://youtube.com/..."
               className="w-full px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
               onKeyPress={(e) => e.key === "Enter" && !loading && handleDownload()}
             />
@@ -297,12 +384,20 @@ export default function DownloaderPage() {
               <div className="w-full bg-gray-200 rounded-full h-2.5">
                 <div className="bg-blue-600 h-2.5 rounded-full animate-pulse" style={{ width: "100%" }}></div>
               </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 text-center">
+                Đang tìm video... Vui lòng đợi
+              </p>
             </div>
           )}
 
           {error && (
             <div className="mt-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 rounded-lg">
               <p className="text-red-700 dark:text-red-400">{error}</p>
+              {error.includes("rate limit") && (
+                <p className="text-sm text-red-600 dark:text-red-500 mt-2">
+                  💡 Tip: Đợi 1-2 phút rồi thử lại, hoặc thử link khác
+                </p>
+              )}
             </div>
           )}
 
@@ -313,6 +408,9 @@ export default function DownloaderPage() {
                   src={videoInfo.thumbnail}
                   alt={videoInfo.title}
                   className="w-full rounded-lg mb-4"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).style.display = "none";
+                  }}
                 />
               )}
               <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2">
@@ -348,6 +446,8 @@ export default function DownloaderPage() {
                     <a
                       href={link.url}
                       download
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity font-semibold"
                     >
                       Tải MP4
@@ -382,6 +482,9 @@ export default function DownloaderPage() {
           <div className="mt-8 text-center text-gray-600 dark:text-gray-400">
             <p>Hỗ trợ: TikTok (no watermark), Instagram Reels, YouTube</p>
             <p className="text-sm mt-2">100% miễn phí, không cần đăng ký</p>
+            <p className="text-xs mt-2 text-gray-500">
+              Lưu ý: Nếu không tải được, có thể do API bị rate limit. Vui lòng thử lại sau vài phút.
+            </p>
           </div>
         </div>
 
