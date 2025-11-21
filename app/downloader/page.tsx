@@ -1,8 +1,11 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
+
+// Force dynamic rendering (no SSR for FFmpeg.wasm)
+export const dynamic = 'force-dynamic';
 
 export default function DownloaderPage() {
   const [url, setUrl] = useState("");
@@ -12,11 +15,18 @@ export default function DownloaderPage() {
   const [downloadLinks, setDownloadLinks] = useState<any[]>([]);
   const [converting, setConverting] = useState(false);
   const [convertProgress, setConvertProgress] = useState(0);
-  const ffmpegRef = useRef(new FFmpeg());
+  const ffmpegRef = useRef<FFmpeg | null>(null);
   const [ffmpegLoaded, setFfmpegLoaded] = useState(false);
 
+  useEffect(() => {
+    // Initialize FFmpeg only on client
+    if (typeof window !== 'undefined') {
+      ffmpegRef.current = new FFmpeg();
+    }
+  }, []);
+
   const loadFFmpeg = async () => {
-    if (ffmpegLoaded) return;
+    if (ffmpegLoaded || !ffmpegRef.current) return;
     
     try {
       const baseURL = "https://unpkg.com/@ffmpeg/core@0.12.6/dist/esm";
@@ -195,9 +205,14 @@ export default function DownloaderPage() {
   };
 
   const convertToMP3 = async (videoUrl: string) => {
-    if (!ffmpegLoaded) {
+    if (!ffmpegLoaded || !ffmpegRef.current) {
       setConverting(true);
       await loadFFmpeg();
+    }
+
+    if (!ffmpegRef.current) {
+      setError("FFmpeg chưa sẵn sàng. Vui lòng thử lại!");
+      return;
     }
 
     setConverting(true);
@@ -219,7 +234,7 @@ export default function DownloaderPage() {
 
       // Get MP3 file
       const mp3Data = await ffmpeg.readFile("output.mp3");
-      const mp3Blob = new Blob([mp3Data], { type: "audio/mpeg" });
+      const mp3Blob = new Blob([mp3Data as BlobPart], { type: "audio/mpeg" });
       const mp3Url = URL.createObjectURL(mp3Blob);
 
       // Download MP3
