@@ -7,6 +7,9 @@ import { fetchFile, toBlobURL } from "@ffmpeg/util";
 // Force dynamic rendering (no SSR for FFmpeg.wasm)
 export const dynamic = 'force-dynamic';
 
+// CORS Proxy - dùng public CORS proxy
+const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+
 export default function DownloaderPage() {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
@@ -100,20 +103,11 @@ export default function DownloaderPage() {
   };
 
   const downloadTikTok = async (url: string) => {
-    // Try multiple TikTok APIs với retry
+    // Dùng API có CORS hoặc CORS proxy
     const apis = [
       {
-        url: `https://tikwm.com/api?url=${encodeURIComponent(url)}`,
-        parser: (data: any) => ({
-          downloadUrl: data.data?.play || data.data?.wmplay || data.data?.hdplay,
-          thumbnail: data.data?.cover || data.data?.origin_cover,
-          title: data.data?.title || data.title || "TikTok Video",
-          author: data.data?.author?.nickname || data.data?.author?.unique_id || data.author || "Unknown",
-          noWatermark: true,
-        }),
-      },
-      {
         url: `https://api.tiklydown.eu.org/api/download?url=${encodeURIComponent(url)}`,
+        useProxy: false,
         parser: (data: any) => ({
           downloadUrl: data.video?.noWatermark || data.video?.watermark || data.video?.play,
           thumbnail: data.cover || data.video?.cover,
@@ -123,23 +117,34 @@ export default function DownloaderPage() {
         }),
       },
       {
-        url: `https://api16-normal-c-useast1a.tiktokv.com/aweme/v1/feed/?aweme_id=${extractTikTokId(url)}`,
-        parser: (data: any) => {
-          const video = data?.aweme_list?.[0];
-          return {
-            downloadUrl: video?.video?.play_addr?.url_list?.[0] || video?.video?.download_addr?.url_list?.[0],
-            thumbnail: video?.video?.cover?.url_list?.[0] || video?.video?.origin_cover?.url_list?.[0],
-            title: video?.desc || "TikTok Video",
-            author: video?.author?.nickname || video?.author?.unique_id || "Unknown",
-            noWatermark: false,
-          };
-        },
+        url: `https://tikwm.com/api?url=${encodeURIComponent(url)}`,
+        useProxy: true,
+        parser: (data: any) => ({
+          downloadUrl: data.data?.play || data.data?.wmplay || data.data?.hdplay,
+          thumbnail: data.data?.cover || data.data?.origin_cover,
+          title: data.data?.title || data.title || "TikTok Video",
+          author: data.data?.author?.nickname || data.data?.author?.unique_id || data.author || "Unknown",
+          noWatermark: true,
+        }),
+      },
+      {
+        url: `https://www.tikwm.com/api?url=${encodeURIComponent(url)}`,
+        useProxy: true,
+        parser: (data: any) => ({
+          downloadUrl: data.data?.play || data.data?.wmplay || data.data?.hdplay,
+          thumbnail: data.data?.cover || data.data?.origin_cover,
+          title: data.data?.title || data.title || "TikTok Video",
+          author: data.data?.author?.nickname || data.data?.author?.unique_id || data.author || "Unknown",
+          noWatermark: true,
+        }),
       },
     ];
 
     for (const api of apis) {
       try {
-        const response = await fetch(api.url, {
+        const fetchUrl = api.useProxy ? `${CORS_PROXY}${encodeURIComponent(api.url)}` : api.url;
+        
+        const response = await fetch(fetchUrl, {
           method: "GET",
           headers: {
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
@@ -153,8 +158,6 @@ export default function DownloaderPage() {
           const parsed = api.parser(data);
           
           if (parsed.downloadUrl) {
-            // Verify URL is accessible
-            const testResponse = await fetch(parsed.downloadUrl, { method: "HEAD", mode: "no-cors" }).catch(() => null);
             return parsed;
           }
         }
@@ -164,7 +167,7 @@ export default function DownloaderPage() {
       }
     }
     
-    throw new Error("Không thể tải video TikTok. Các API có thể đang bị rate limit. Vui lòng thử lại sau vài phút.");
+    throw new Error("Không thể tải video TikTok. Các API có thể đang bị rate limit hoặc URL không hợp lệ. Vui lòng thử lại sau vài phút.");
   };
 
   const extractTikTokId = (url: string): string | null => {
@@ -179,6 +182,7 @@ export default function DownloaderPage() {
         url: `https://api.saveig.app/api/ajaxSearch`,
         method: "POST" as const,
         body: `q=${encodeURIComponent(url)}`,
+        useProxy: false,
         parser: (data: any) => {
           const video = data.medias?.find((m: any) => m.type === "Video");
           return {
@@ -193,6 +197,7 @@ export default function DownloaderPage() {
       {
         url: `https://api.downloadgram.org/api/video?url=${encodeURIComponent(url)}`,
         method: "GET" as const,
+        useProxy: true,
         parser: (data: any) => ({
           downloadUrl: data.video || data.download,
           thumbnail: data.thumbnail || data.thumb,
@@ -205,7 +210,12 @@ export default function DownloaderPage() {
 
     for (const api of apis) {
       try {
-        const response = await fetch(api.url, {
+        let fetchUrl = api.url;
+        if (api.useProxy && api.method === "GET") {
+          fetchUrl = `${CORS_PROXY}${encodeURIComponent(api.url)}`;
+        }
+
+        const response = await fetch(fetchUrl, {
           method: api.method,
           headers: {
             "Content-Type": "application/x-www-form-urlencoded",
@@ -239,6 +249,7 @@ export default function DownloaderPage() {
     const apis = [
       {
         url: `https://api.vevioz.com/api/convert/mp4/${videoId}`,
+        useProxy: false,
         parser: (data: any) => ({
           downloadUrl: data.download || data.link || data.url,
           thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
@@ -248,20 +259,26 @@ export default function DownloaderPage() {
         }),
       },
       {
-        url: `https://yt-api.p.rapidapi.com/dl?id=${videoId}`,
-        parser: (data: any) => ({
-          downloadUrl: data.link || data.download,
-          thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-          title: data.title || "YouTube Video",
-          author: data.channel || "Unknown",
-          noWatermark: false,
-        }),
+        url: `https://www.youtube.com/watch?v=${videoId}`,
+        useProxy: false,
+        parser: (data: any) => {
+          // Fallback: dùng embed URL
+          return {
+            downloadUrl: `https://www.youtube.com/embed/${videoId}`,
+            thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
+            title: "YouTube Video",
+            author: "Unknown",
+            noWatermark: false,
+          };
+        },
       },
     ];
 
     for (const api of apis) {
       try {
-        const response = await fetch(api.url, {
+        const fetchUrl = api.useProxy ? `${CORS_PROXY}${encodeURIComponent(api.url)}` : api.url;
+        
+        const response = await fetch(fetchUrl, {
           headers: {
             "User-Agent": "Mozilla/5.0",
           },
@@ -483,7 +500,7 @@ export default function DownloaderPage() {
             <p>Hỗ trợ: TikTok (no watermark), Instagram Reels, YouTube</p>
             <p className="text-sm mt-2">100% miễn phí, không cần đăng ký</p>
             <p className="text-xs mt-2 text-gray-500">
-              Lưu ý: Nếu không tải được, có thể do API bị rate limit. Vui lòng thử lại sau vài phút.
+              Lưu ý: Nếu không tải được, có thể do API bị rate limit hoặc CORS. Vui lòng thử lại sau vài phút.
             </p>
           </div>
         </div>
