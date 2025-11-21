@@ -1,5 +1,6 @@
 {
   "name": "zavclip",
+  "description": "ZavClip - All-in-one Viral Clip Toolbox",
   "version": "0.1.0",
   "private": true,
   "scripts": {
