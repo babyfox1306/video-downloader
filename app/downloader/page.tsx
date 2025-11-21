@@ -20,97 +20,30 @@ export default function DownloaderPage() {
     setDownloadLinks([]);
 
     try {
-      // Try multiple API services
-      let success = false;
+      // Call Netlify Function to get actual download links
+      const response = await fetch("/.netlify/functions/download", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ url }),
+      });
 
-      // Method 1: Use yt-dlp wrapper API (if available on backend)
-      try {
-        const response = await fetch("/api/download", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ url }),
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          if (data.downloadLinks) {
-            setDownloadLinks(data.downloadLinks);
-            success = true;
-          }
-        }
-      } catch (e) {
-        console.log("API route failed, trying alternatives");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to fetch download links");
       }
 
-      // Method 2: Direct platform handling with redirect services
-      if (!success) {
-        if (url.includes("youtube.com") || url.includes("youtu.be")) {
-          const videoId = extractYouTubeId(url);
-          if (videoId) {
-            // Redirect to YouTube downloader services
-            const downloadServices = [
-              {
-                url: `https://www.ssyoutube.com/watch?v=${videoId}`,
-                quality: "HD",
-                format: "mp4",
-                service: "ssyoutube",
-                name: "SSYouTube (Recommended)",
-              },
-              {
-                url: `https://en.savefrom.net/#url=${encodeURIComponent(url)}`,
-                quality: "Multiple",
-                format: "mp4/mp3",
-                service: "savefrom",
-                name: "SaveFrom.net",
-              },
-            ];
-            setDownloadLinks(downloadServices);
-            success = true;
-          }
-        } else if (url.includes("tiktok.com")) {
-          // TikTok download services
-          const downloadServices = [
-            {
-              url: `https://snapany.com/tiktok?url=${encodeURIComponent(url)}`,
-              quality: "HD",
-              format: "mp4",
-              service: "snapany",
-              name: "SnapAny (TikTok)",
-            },
-            {
-              url: `https://www.tikwm.com/api?url=${encodeURIComponent(url)}`,
-              quality: "HD",
-              format: "mp4",
-              service: "tikwm",
-              name: "TikWM API",
-            },
-          ];
-          setDownloadLinks(downloadServices);
-          success = true;
-        } else if (url.includes("instagram.com")) {
-          // Instagram download services
-          const downloadServices = [
-            {
-              url: `https://downloadgram.org/video-downloader.php?url=${encodeURIComponent(url)}`,
-              quality: "HD",
-              format: "mp4",
-              service: "downloadgram",
-              name: "DownloadGram",
-            },
-          ];
-          setDownloadLinks(downloadServices);
-          success = true;
-        } else if (url.includes("twitter.com") || url.includes("x.com")) {
-          setError("Twitter/X download: Please use https://twitsave.com or similar services");
-        } else {
-          setError("Unsupported platform. Currently supports: YouTube, TikTok, Instagram");
-        }
+      const data = await response.json();
+
+      if (data.success && data.downloadLinks && data.downloadLinks.length > 0) {
+        setDownloadLinks(data.downloadLinks);
+      } else {
+        setError("Unable to extract download links. Please check the URL and try again.");
       }
     } catch (err: any) {
       console.error("Download error:", err);
-      setError("Failed to process video. Please check the URL and try again.");
+      setError(err.message || "Failed to process video. Please check the URL and try again.");
     } finally {
       setLoading(false);
     }
@@ -178,7 +111,7 @@ export default function DownloaderPage() {
 
           {downloadLinks.length > 0 && (
             <div className="mt-6 space-y-3">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Download Options:
               </h3>
               {downloadLinks.map((link, index) => (
@@ -188,21 +121,20 @@ export default function DownloaderPage() {
                 >
                   <div>
                     <p className="font-medium text-gray-900 dark:text-white">
-                      {link.name || `${link.quality || "Video"} - ${link.format || "mp4"}`}
+                      {link.quality || "HD"} - {link.format || "mp4"}
                     </p>
-                    {link.service && (
+                    {link.size && (
                       <p className="text-sm text-gray-500 dark:text-gray-400">
-                        Via {link.service}
+                        Size: {link.size}
                       </p>
                     )}
                   </div>
                   <a
-                    href={link.url || link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    href={link.url}
+                    download
+                    className="px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:opacity-90 transition-opacity font-semibold"
                   >
-                    Open & Download
+                    Download Now
                   </a>
                 </div>
               ))}
