@@ -14,16 +14,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ZavClip - Công cụ văn phòng online Miễn phí & Bảo mật",
-  description: "ZavClip: Bộ công cụ văn phòng online 100% Client-side. Nén PDF, gộp PDF, chỉnh sửa ảnh, tiện ích text, meme generator, và soundboard hoàn toàn miễn phí và bảo mật tuyệt đối.",
+  title: "ZavClip - Công cụ văn phòng online miễn phí",
+  description: "Bộ công cụ PDF, ảnh, tính toán, tiện ích Việt Nam - miễn phí, không cần cài đặt, file không rời máy bạn",
 };
 
 const navItems = [
-  { name: "PDF Tools", emoji: "📄", href: "/pdf" },
+  { name: "PDF", emoji: "📄", href: "/pdf" },
   { name: "Ảnh", emoji: "🖼️", href: "/image" },
   { name: "Tiện ích", emoji: "📝", href: "/text" },
-  { name: "Meme", emoji: "😂", href: "/meme" },
-  { name: "Soundboard", emoji: "🎵", href: "/soundboard" },
+  { name: "Tính toán", emoji: "🧮", href: "/calc" },
+  { name: "Việt Nam", emoji: "🇻🇳", href: "/vietnam" },
 ];
 
 export default function RootLayout({

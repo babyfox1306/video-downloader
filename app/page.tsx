@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "ZavClip - Công cụ văn phòng online Miễn phí & Bảo mật",
-  description: "ZavClip: Bộ công cụ văn phòng online chạy trực tiếp trên máy của bạn. Nén PDF, gộp PDF, chỉnh sửa ảnh, đếm từ, tạo mã QR, chế meme, và soundboard hoàn toàn miễn phí và bảo mật tuyệt đối.",
+  title: "ZavClip - Công cụ văn phòng online miễn phí",
+  description: "Bộ công cụ PDF, ảnh, tính toán, tiện ích Việt Nam - miễn phí, không cần cài đặt, file không rời máy bạn",
 };
 
 const HUB_CARDS = [
@@ -38,7 +38,7 @@ const HUB_CARDS = [
     iconBg: "bg-emerald-50 dark:bg-emerald-950/30 text-emerald-550 dark:text-emerald-400"
   },
   {
-    name: "Meme Generator",
+    name: "Tạo Meme",
     emoji: "😂",
     href: "/meme",
     description: "Chế meme từ 100+ template viral hàng đầu, thêm nhiều chữ, kéo thả kéo dãn, tải ảnh nét về máy.",
@@ -48,7 +48,7 @@ const HUB_CARDS = [
     iconBg: "bg-purple-50 dark:bg-purple-950/30 text-purple-550 dark:text-purple-400"
   },
   {
-    name: "Soundboard",
+    name: "Bảng âm thanh",
     emoji: "🎵",
     href: "/soundboard",
     description: "50+ âm thanh hiệu ứng meme & nhạc game thịnh hành nhất hiện nay, bấm phát tức thì & tải về máy.",
@@ -65,7 +65,7 @@ const HUB_CARDS = [
     badge: "5 công cụ",
     colorClass: "from-red-500/10 to-yellow-500/10 border-red-500/20 dark:border-red-500/30 group-hover:border-red-500 dark:group-hover:border-red-400 group-hover:shadow-red-500/10",
     badgeColor: "bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-450",
-    iconBg: "bg-red-50 dark:bg-red-950/30 text-red-550 dark:text-red-450"
+    iconBg: "bg-red-50 dark:bg-red-950/30 text-red-550 dark:text-red-455"
   },
   {
     name: "Tính toán & Tra cứu",
@@ -106,6 +106,26 @@ const HUB_CARDS = [
     colorClass: "from-pink-500/10 to-rose-500/10 border-pink-500/20 dark:border-pink-500/30 group-hover:border-pink-500 dark:group-hover:border-pink-400 group-hover:shadow-pink-500/10",
     badgeColor: "bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-400",
     iconBg: "bg-pink-50 dark:bg-pink-950/30 text-pink-550 dark:text-pink-400"
+  },
+  {
+    name: "Ý tưởng đóng góp",
+    emoji: "💡",
+    href: "#",
+    description: "Bạn cần thêm công cụ văn phòng nào? Gửi ý kiến cho chúng tôi để cùng phát triển miễn phí.",
+    badge: "Ý kiến",
+    colorClass: "from-slate-500/10 to-gray-500/10 border-slate-500/20 dark:border-slate-500/30 group-hover:border-slate-500 dark:group-hover:border-slate-400 group-hover:shadow-slate-500/10",
+    badgeColor: "bg-slate-100 dark:bg-slate-950/60 text-slate-700 dark:text-slate-400",
+    iconBg: "bg-slate-50 dark:bg-slate-950/30 text-slate-550 dark:text-slate-400"
+  },
+  {
+    name: "Sắp ra mắt",
+    emoji: "🚀",
+    href: "#",
+    description: "Nhiều tiện ích chuyển đổi tài liệu, biểu đồ tự động và công cụ văn phòng thông minh đang hoàn thiện.",
+    badge: "Đang làm",
+    colorClass: "from-zinc-500/10 to-neutral-500/10 border-zinc-500/20 dark:border-zinc-500/30 group-hover:border-zinc-500 dark:group-hover:border-zinc-400 group-hover:shadow-zinc-500/10",
+    badgeColor: "bg-zinc-100 dark:bg-zinc-950/60 text-zinc-700 dark:text-zinc-400",
+    iconBg: "bg-zinc-50 dark:bg-zinc-950/30 text-zinc-550 dark:text-zinc-400"
   }
 ];
 
@@ -116,76 +136,61 @@ export default function Home() {
         
         {/* Hero Section */}
         <div className="text-center mb-16 space-y-6">
-          <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-750 shadow-sm">
-            🔒 Bảo mật tuyệt đối · Chạy trực tiếp trên trình duyệt · Không cần đăng ký
-          </span>
-          
           <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
-            Công cụ văn phòng online <br className="hidden md:inline" />
-            <span className="bg-gradient-to-r from-rose-500 via-purple-500 to-blue-500 bg-clip-text text-transparent">
-              Miễn phí & Bảo mật
-            </span>
+            ZavClip — <span className="bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent">Công cụ văn phòng miễn phí</span>
           </h1>
           
-          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Xử lý file PDF, tối ưu hóa ảnh và các tiện ích văn phòng trực tiếp ngay trên máy của bạn.
-            <strong className="text-gray-850 dark:text-gray-250 font-bold block mt-1">Ảnh và tài liệu không bao giờ bị upload lên mạng!</strong>
+          <p className="text-base md:text-lg text-gray-655 dark:text-gray-400 max-w-3xl mx-auto leading-relaxed font-medium">
+            Xử lý PDF, ảnh, tính toán ngay trên trình duyệt. Không cần cài đặt. File không rời khỏi máy bạn.
           </p>
+
+          <div className="flex flex-wrap justify-center gap-3 pt-2">
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/30 text-xs font-extrabold text-emerald-700 dark:text-emerald-400 border border-emerald-500/10 shadow-sm">
+              ✓ Miễn phí
+            </span>
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-teal-50 dark:bg-teal-950/30 text-xs font-extrabold text-teal-700 dark:text-teal-400 border border-teal-500/10 shadow-sm">
+              ✓ Không cài đặt
+            </span>
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/30 text-xs font-extrabold text-cyan-700 dark:text-cyan-400 border border-cyan-500/10 shadow-sm">
+              ✓ File không upload
+            </span>
+            <span className="inline-flex items-center px-4 py-1.5 rounded-full bg-indigo-50 dark:bg-indigo-950/30 text-xs font-extrabold text-indigo-700 dark:text-indigo-400 border border-indigo-500/10 shadow-sm">
+              ✓ Offline được
+            </span>
+          </div>
         </div>
 
         {/* Grid Hubs */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
-          {HUB_CARDS.map((card) => (
-            <Link
-              key={card.href}
-              href={card.href}
-              className={`group block bg-gradient-to-br ${card.colorClass} bg-white dark:bg-gray-800/80 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1.5 border relative overflow-hidden`}
-            >
-              {/* Badge */}
-              <span className={`absolute top-4 right-4 text-[10px] font-bold px-3 py-1 rounded-full border border-current/5 ${card.badgeColor}`}>
-                {card.badge}
-              </span>
+          {HUB_CARDS.map((card) => {
+            const isPlaceholder = card.href === "#";
+            const CardComponent = isPlaceholder ? "div" : Link;
+            return (
+              <CardComponent
+                key={card.name}
+                href={card.href}
+                className={`group block bg-gradient-to-br ${card.colorClass} bg-white dark:bg-gray-800/80 rounded-3xl p-6 shadow-sm hover:shadow-xl transition-all duration-300 transform ${!isPlaceholder ? "hover:-translate-y-1.5 cursor-pointer" : ""} border relative overflow-hidden`}
+              >
+                {/* Badge */}
+                <span className={`absolute top-4 right-4 text-[10px] font-bold px-3 py-1 rounded-full border border-current/5 ${card.badgeColor}`}>
+                  {card.badge}
+                </span>
 
-              {/* Large Icon */}
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-5 shadow-inner transition-transform group-hover:scale-110 ${card.iconBg}`}>
-                {card.emoji}
-              </div>
+                {/* Large Icon */}
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-5 shadow-inner transition-transform ${!isPlaceholder ? "group-hover:scale-110" : ""} ${card.iconBg}`}>
+                  {card.emoji}
+                </div>
 
-              {/* Title & Desc */}
-              <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white transition-colors">
-                {card.name}
-              </h3>
-              <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm leading-relaxed">
-                {card.description}
-              </p>
-            </Link>
-          ))}
-        </div>
-
-        {/* Trust Bar Footer */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-755 rounded-3xl p-6 shadow-sm max-w-3xl mx-auto">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-            <div className="space-y-1">
-              <span className="text-xl">🚀</span>
-              <p className="text-xs font-bold text-gray-800 dark:text-gray-200">Không cần cài đặt</p>
-              <p className="text-[10px] text-gray-400">Chạy ngay trên Web</p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-xl">🎁</span>
-              <p className="text-xs font-bold text-gray-800 dark:text-gray-200">Hoàn toàn miễn phí</p>
-              <p className="text-[10px] text-gray-400">Không giới hạn tính năng</p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-xl">🛡️</span>
-              <p className="text-xs font-bold text-gray-800 dark:text-gray-200">File không upload</p>
-              <p className="text-[10px] text-gray-400">Bảo mật dữ liệu tuyệt đối</p>
-            </div>
-            <div className="space-y-1">
-              <span className="text-xl">🔌</span>
-              <p className="text-xs font-bold text-gray-800 dark:text-gray-200">Hoạt động ngoại tuyến</p>
-              <p className="text-[10px] text-gray-400">Xử lý ngay cả khi không có mạng</p>
-            </div>
-          </div>
+                {/* Title & Desc */}
+                <h3 className="text-xl font-bold mb-2 text-gray-900 dark:text-white transition-colors">
+                  {card.name}
+                </h3>
+                <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm leading-relaxed">
+                  {card.description}
+                </p>
+              </CardComponent>
+            );
+          })}
         </div>
 
       </div>
