@@ -142,9 +142,9 @@ export default function PDFCompressComponent() {
         </div>
 
         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-          <span>📉</span> Nén File PDF Offline
+          📉 Nén file PDF
         </h1>
-        <p className="text-gray-500 dark:text-gray-400 text-sm mb-8">
+        <p className="text-gray-505 dark:text-gray-400 text-sm mb-8">
           Giảm dung lượng tệp PDF của bạn bằng cách tối ưu hóa các trang văn bản và hình ảnh nhúng, giúp chia sẻ dễ dàng hơn.
         </p>
 
@@ -198,7 +198,7 @@ export default function PDFCompressComponent() {
                   disabled={isProcessing}
                   className="w-full bg-gradient-to-r from-rose-500 to-orange-600 hover:from-rose-600 hover:to-orange-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
-                  {isProcessing ? "Đang xử lý..." : "📉 Bắt Đầu Nén PDF"}
+                  {isProcessing ? "Đang xử lý..." : "📉 Nén file PDF"}
                 </button>
 
                 <button

@@ -6,71 +6,71 @@ import { useState } from "react";
 const IMAGE_TOOLS = [
   {
     id: "compress",
-    name: "Nén Ảnh Tối Ưu",
-    description: "Giảm dung lượng hình ảnh JPG, PNG, WEBP mà vẫn giữ nguyên độ nét, hỗ trợ nén hàng loạt.",
+    name: "Nén ảnh",
+    description: "Giảm dung lượng hình ảnh JPG, PNG, WEBP mà vẫn giữ nguyên độ nét, hỗ trợ nén nhiều ảnh cùng lúc.",
     emoji: "📉",
     color: "from-blue-500 to-cyan-500"
   },
   {
     id: "convert",
-    name: "Chuyển Đổi Định Dạng Ảnh",
-    description: "Chuyển đổi linh hoạt giữa các định dạng PNG, JPG, WEBP, BMP, GIF, ICO hoàn toàn offline.",
+    name: "Đổi đuôi ảnh",
+    description: "Chuyển đổi linh hoạt qua lại giữa các đuôi PNG, JPG, WEBP, BMP, GIF, ICO cực kỳ nhanh chóng.",
     emoji: "🔄",
     color: "from-purple-500 to-indigo-500"
   },
   {
     id: "resize",
-    name: "Thay Đổi Kích Thước",
-    description: "Đổi tỷ lệ ảnh theo pixel hoặc theo các khung ảnh mẫu sẵn như CCCD, Facebook, Instagram.",
+    name: "Đổi kích thước ảnh",
+    description: "Thay đổi kích thước ảnh theo pixel hoặc theo các khung mẫu sẵn như CCCD, ảnh Facebook, Instagram.",
     emoji: "📐",
     color: "from-emerald-500 to-teal-500"
   },
   {
     id: "remove-bg",
-    name: "Xóa Nền Ảnh (Remove BG)",
-    description: "Xóa phông nền, tách người hoặc vật thể ra khỏi ảnh tạo nền trong suốt (PNG) bằng AI chạy cục bộ.",
+    name: "Xóa nền ảnh",
+    description: "Tách người hoặc vật thể ra khỏi ảnh, tạo phông nền trong suốt tự động bằng AI chạy ngay trên máy.",
     emoji: "✨",
     color: "from-pink-500 to-rose-500"
   },
   {
     id: "watermark",
-    name: "Đóng Dấu Bản Quyền (Watermark)",
-    description: "Chèn thêm logo hoặc chữ thương hiệu lên ảnh để chống sao chép và bảo vệ bản quyền.",
+    name: "Thêm watermark",
+    description: "Chèn logo hoặc chữ bản quyền lên ảnh để bảo vệ hình ảnh cá nhân, tránh bị người khác copy.",
     emoji: "🛡️",
     color: "from-orange-500 to-amber-500"
   },
   {
     id: "crop",
-    name: "Cắt Ảnh (Crop)",
-    description: "Cắt xén các vùng thừa của ảnh tự do hoặc cắt theo tỉ lệ cố định 1:1, 16:9, 4:3 siêu nhanh.",
+    name: "Cắt ảnh",
+    description: "Cắt bớt các phần thừa của ảnh tự do hoặc cắt theo tỉ lệ cố định 1:1, 16:9, 4:3 siêu dễ.",
     emoji: "✂️",
     color: "from-violet-500 to-fuchsia-500"
   },
   {
     id: "rotate-flip",
-    name: "Xoay & Lật Ảnh",
-    description: "Xoay ảnh 90/180/270 độ hoặc lật đối xứng hình ảnh (lật gương) theo chiều ngang/dọc.",
+    name: "Xoay & lật ảnh",
+    description: "Xoay ảnh các góc 90/180/270 độ hoặc lật ngược ảnh theo chiều ngang, chiều dọc tùy ý.",
     emoji: "🔁",
     color: "from-yellow-500 to-orange-500"
   },
   {
     id: "heic-to-jpg",
-    name: "Chuyển HEIC của iPhone sang JPG",
-    description: "Đổi định dạng ảnh HEIC đặc trưng của điện thoại iPhone/iPad sang JPG để xem được trên máy tính.",
+    name: "Chuyển ảnh iPhone (HEIC) sang JPG",
+    description: "Đổi định dạng ảnh HEIC từ điện thoại iPhone, iPad sang đuôi JPG để xem được trên mọi máy tính.",
     emoji: "🍏",
     color: "from-red-500 to-pink-500"
   },
   {
     id: "svg-to-png",
-    name: "Đổi SVG sang PNG",
-    description: "Render các file đồ họa vector dạng SVG thành hình ảnh chất lượng cao PNG để dễ chia sẻ.",
+    name: "Chuyển SVG sang ảnh PNG",
+    description: "Chuyển đổi các file đồ họa vector SVG thành hình ảnh PNG sắc nét để dễ chia sẻ lên mạng.",
     emoji: "🎨",
     color: "from-teal-500 to-emerald-500"
   },
   {
     id: "add-border",
-    name: "Thêm Viền Màu Ảnh",
-    description: "Thêm khung viền màu sắc bắt mắt xung quanh ảnh với độ dày pixel tùy chỉnh cực xinh xắn.",
+    name: "Thêm viền ảnh",
+    description: "Thêm một khung viền màu sắc bắt mắt xung quanh ảnh với độ dày viền tùy chỉnh cực đẹp.",
     emoji: "🖼️",
     color: "from-blue-600 to-indigo-600"
   }
@@ -99,19 +99,18 @@ export default function ImageToolsHubPage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
-          🖼️ Tiện Ích Xử Lý Hình Ảnh
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white">
+          🖼️ Chỉnh sửa ảnh online
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl text-sm md:text-base">
-          Trọn bộ công cụ biên tập, cắt ghép, nén dung lượng và đổi định dạng ảnh chạy 100% tại client.
-          Dữ liệu bảo mật tuyệt đối, hình ảnh không tải lên máy chủ!
+        <p className="text-gray-650 dark:text-gray-400 mb-8 max-w-3xl text-sm md:text-base leading-relaxed">
+          Nén ảnh, đổi đuôi, xóa nền, cắt, resize — miễn phí, không cần cài đặt, ảnh không rời máy bạn.
         </p>
 
         {/* Search */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-750 p-4 mb-8">
           <input
             type="text"
-            placeholder="Tìm nhanh tiện ích hình ảnh cần dùng (ví dụ: Nén ảnh, xóa nền, CCCD, xoay ảnh...)..."
+            placeholder="Tìm nhanh công cụ cần dùng (ví dụ: Nén ảnh, xóa nền, CCCD, xoay ảnh...)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 dark:text-white transition-colors"
@@ -139,7 +138,7 @@ export default function ImageToolsHubPage() {
                   {tool.description}
                 </p>
               </div>
-              <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1.5 transition-transform mt-auto">
+              <div className="flex items-center gap-1 text-xs font-bold text-blue-600 dark:text-blue-400 group-hover:translate-x-1.5 transition-transform mt-auto pt-2">
                 Mở công cụ <span>➔</span>
               </div>
             </Link>
@@ -149,7 +148,7 @@ export default function ImageToolsHubPage() {
         {filteredTools.length === 0 && (
           <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-150 dark:border-gray-750">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Không tìm thấy công cụ hình ảnh nào khớp với từ khóa tìm kiếm.
+              Không tìm thấy công cụ chỉnh sửa ảnh nào khớp với từ khóa tìm kiếm.
             </p>
           </div>
         )}

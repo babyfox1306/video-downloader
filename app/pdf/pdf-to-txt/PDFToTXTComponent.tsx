@@ -107,10 +107,10 @@ export default function PDFToTXTComponent() {
         </div>
 
         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-          <span>🖨️</span> Trích Xuất Văn Bản PDF (PDF sang Text)
+          🖨️ Lấy chữ từ PDF
         </h1>
         <p className="text-gray-500 dark:text-gray-400 text-sm mb-8">
-          Đọc và sao chép văn bản bên trong file PDF, lưu trữ thành tệp văn bản thuần `.txt` để tiện ghi chú hoặc sửa đổi.
+          Đọc và sao chép văn bản bên trong file PDF, lưu trữ thành tệp văn bản thuần .txt để tiện ghi chú hoặc sửa đổi.
         </p>
 
         {!file ? (
@@ -130,7 +130,7 @@ export default function PDFToTXTComponent() {
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-750 shadow-md p-5 space-y-6">
-              <h3 className="font-bold text-sm text-gray-850 dark:text-gray-200 border-b border-gray-100 dark:border-gray-750 pb-2">
+              <h3 className="font-bold text-sm text-gray-855 dark:text-gray-200 border-b border-gray-100 dark:border-gray-750 pb-2">
                 Trích xuất văn bản
               </h3>
 
@@ -144,7 +144,7 @@ export default function PDFToTXTComponent() {
                   disabled={isProcessing}
                   className="w-full bg-gradient-to-r from-rose-500 to-orange-600 hover:from-rose-600 hover:to-orange-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 text-xs md:text-sm"
                 >
-                  {isProcessing ? "Đang trích xuất..." : "🖨️ Trích Xuất Chữ"}
+                  {isProcessing ? "Đang trích xuất..." : "🖨️ Lấy chữ từ PDF"}
                 </button>
               </div>
 

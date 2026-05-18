@@ -167,10 +167,10 @@ export default function JPGToPDFPage() {
 
         {/* Title */}
         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-          <span>📄</span> Chuyển Ảnh sang PDF (Images to PDF)
+          📄 Ảnh thành file PDF
         </h1>
         <p className="text-gray-500 dark:text-gray-400 text-sm mb-8">
-          Ghép nối nhiều hình ảnh tài liệu, hóa đơn đuôi JPG/PNG thành một tệp PDF chuyên nghiệp hoàn chỉnh.
+          Ghép nhiều ảnh tài liệu, hóa đơn đuôi JPG, PNG thành một file PDF hoàn chỉnh và chuyên nghiệp.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
@@ -299,7 +299,7 @@ export default function JPGToPDFPage() {
                 disabled={queue.length === 0 || isProcessing}
                 className="w-full bg-gradient-to-r from-rose-500 to-orange-600 hover:from-rose-600 hover:to-orange-700 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all transform hover:-translate-y-0.5 active:translate-y-0 text-base flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                📄 Tạo Tệp PDF Từ Ảnh
+                📄 Tạo file PDF
               </button>
             ) : (
               <div className="w-full space-y-4">

@@ -6,22 +6,22 @@ import { useState } from "react";
 const OTHER_TOOLS = [
   {
     id: "qrcode",
-    name: "Tạo & Quét Mã QR",
-    description: "Tạo mã QR từ đường dẫn URL hoặc văn bản bất kỳ, tùy biến màu sắc và tải về ảnh QR sắc nét.",
+    name: "Tạo & quét mã QR",
+    description: "Tạo mã QR từ link trang web hoặc chữ bất kỳ, đổi màu sắc và tải ảnh QR về điện thoại.",
     emoji: "📱",
     color: "from-blue-500 to-indigo-500"
   },
   {
     id: "image-compressor",
-    name: "Nén Ảnh Hàng Loạt",
-    description: "Nén dung lượng nhiều hình ảnh JPG/PNG cùng lúc nhanh chóng để gửi mail, giữ nguyên độ nét.",
+    name: "Nén ảnh hàng loạt",
+    description: "Nén dung lượng cùng lúc nhiều ảnh JPG/PNG để dễ gửi đi, giữ nguyên chất lượng rõ nét.",
     emoji: "🗜️",
     color: "from-emerald-500 to-teal-500"
   },
   {
     id: "background-remover",
-    name: "Tách Nền Ảnh Bằng AI",
-    description: "Tách nền người, vật thể ra khỏi ảnh chỉ trong 3 giây bằng AI chạy trực tiếp 100% trên thiết bị của bạn.",
+    name: "Xóa nền ảnh bằng AI",
+    description: "Tự động tách người hoặc vật thể ra khỏi ảnh chỉ trong 3 giây nhờ AI chạy ngay tại trình duyệt.",
     emoji: "✨",
     color: "from-purple-500 to-rose-500"
   }
@@ -50,21 +50,21 @@ export default function OtherToolsHubPage() {
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-blue-600 to-indigo-500 bg-clip-text text-transparent">
-          ⚙️ Tiện Ích Văn Phòng Khác
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white">
+          ⚙️ Công cụ khác
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl text-sm md:text-base">
-          Các công cụ thông dụng khác hỗ trợ công việc văn phòng hàng ngày như mã QR, nén dung lượng ảnh, tách nền ảnh chân dung bằng trí tuệ nhân tạo (AI).
+        <p className="text-gray-650 dark:text-gray-400 mb-8 max-w-3xl text-sm md:text-base leading-relaxed">
+          Xóa nền ảnh bằng AI, nén ảnh hàng loạt, tạo QR — chạy thẳng trên máy bạn, không upload lên đâu cả.
         </p>
 
         {/* Search */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-750 p-4 mb-8">
           <input
             type="text"
-            placeholder="Tìm kiếm nhanh tiện ích văn phòng..."
+            placeholder="Tìm nhanh công cụ cần dùng..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-750 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
+            className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-250 dark:border-gray-755 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-indigo-500 dark:text-white"
           />
         </div>
 
@@ -89,7 +89,7 @@ export default function OtherToolsHubPage() {
                   {tool.description}
                 </p>
               </div>
-              <div className="flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1.5 transition-transform mt-auto">
+              <div className="flex items-center gap-1 text-xs font-bold text-indigo-600 dark:text-indigo-400 group-hover:translate-x-1.5 transition-transform mt-auto pt-2">
                 Mở công cụ <span>➔</span>
               </div>
             </Link>
@@ -99,7 +99,7 @@ export default function OtherToolsHubPage() {
         {filteredTools.length === 0 && (
           <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-150 dark:border-gray-750">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Không tìm thấy tiện ích văn phòng nào phù hợp.
+              Không tìm thấy công cụ nào phù hợp.
             </p>
           </div>
         )}

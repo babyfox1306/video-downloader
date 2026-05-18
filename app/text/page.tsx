@@ -6,57 +6,57 @@ import { useState } from "react";
 const TEXT_TOOLS = [
   {
     id: "word-count",
-    name: "Đếm Từ & Ký Tự",
-    description: "Đếm số từ, ký tự, đoạn văn, ước tính thời gian đọc và thời gian nói cực kỳ chính xác.",
+    name: "Đếm từ & ký tự",
+    description: "Đếm nhanh số từ, số chữ, số dòng, xem mất bao lâu để đọc xong một bài viết.",
     emoji: "📝",
     color: "from-blue-500 to-cyan-500"
   },
   {
     id: "qr-generator",
-    name: "Tạo Mã QR Code",
-    description: "Tạo mã QR nhanh chóng từ URL, văn bản, thông tin WiFi, email, số điện thoại hoặc vCard.",
+    name: "Tạo mã QR",
+    description: "Tạo nhanh mã QR từ link trang web, chữ viết thường, mật khẩu WiFi, số điện thoại.",
     emoji: "📱",
     color: "from-purple-500 to-indigo-500"
   },
   {
     id: "barcode-generator",
-    name: "Tạo Mã Vạch Barcode",
-    description: "Tạo mã vạch chất lượng cao (CODE128, EAN-13, UPC) để in ấn hoặc quản lý kho hàng.",
+    name: "Tạo mã vạch",
+    description: "Tạo mã vạch chuẩn để quản lý hàng hóa hoặc dán nhãn sản phẩm nhanh chóng.",
     emoji: "🏷️",
     color: "from-emerald-500 to-teal-500"
   },
   {
     id: "base64",
-    name: "Mã Hóa & Giải Mã Base64",
-    description: "Chuyển đổi văn bản hoặc hình ảnh sang chuỗi mã hóa Base64 và ngược lại hoàn toàn offline.",
+    name: "Mã hóa Base64",
+    description: "Chuyển chữ hoặc ảnh sang chuỗi Base64 và ngược lại hoàn toàn trên trình duyệt.",
     emoji: "🔐",
     color: "from-pink-500 to-rose-500"
   },
   {
     id: "json-formatter",
-    name: "Định Dạng JSON",
-    description: "Làm đẹp (format), nén (minify) và kiểm tra tính hợp lệ của chuỗi dữ liệu JSON.",
+    name: "Định dạng JSON",
+    description: "Làm đẹp, căn lề và kiểm tra lỗi chính tả trong chuỗi dữ liệu JSON cho dễ đọc.",
     emoji: "💻",
     color: "from-orange-500 to-amber-500"
   },
   {
     id: "password-generator",
-    name: "Tạo Mật Khẩu Mạnh",
-    description: "Tạo mật khẩu an toàn, ngẫu nhiên với độ dài tùy chọn, chống bẻ khóa và bảo mật cao.",
+    name: "Tạo mật khẩu",
+    description: "Tạo ngẫu nhiên mật khẩu siêu mạnh và an toàn để chống hack tài khoản của bạn.",
     emoji: "🔑",
     color: "from-violet-500 to-fuchsia-500"
   },
   {
     id: "lorem-ipsum",
-    name: "Tạo Văn Bản Giả (Lorem)",
-    description: "Tạo nhanh các đoạn văn bản mẫu (bằng tiếng Anh hoặc tiếng Việt) để thiết kế giao diện web/in ấn.",
+    name: "Tạo văn bản giả",
+    description: "Tạo nhanh các đoạn chữ mẫu dài ngắn tùy ý để chèn vào bản thiết kế cho đẹp.",
     emoji: "🖨️",
     color: "from-yellow-500 to-orange-500"
   },
   {
     id: "color-picker",
-    name: "Bộ Chọn Màu Sắc",
-    description: "Chọn màu sắc, lấy mã màu HEX, RGB, HSL, CMYK và gợi ý các bảng màu phối hợp tuyệt đẹp.",
+    name: "Bảng màu",
+    description: "Chọn màu sắc, xem nhanh mã màu HEX, RGB và lưu lại các tông màu phối hợp ăn ý.",
     emoji: "🎨",
     color: "from-red-500 to-pink-500"
   }
@@ -78,26 +78,25 @@ export default function TextToolsHubPage() {
         <div className="mb-6">
           <Link
             href="/"
-            className="text-sm font-semibold text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5"
+            className="text-sm font-semibold text-emerald-600 dark:text-emerald-450 hover:underline flex items-center gap-1.5"
           >
             <span>🏠</span> Trang chủ
           </Link>
         </div>
 
         {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white bg-gradient-to-r from-emerald-600 to-teal-500 bg-clip-text text-transparent">
-          📝 Tiện Ích Văn Bản & Công Cụ
+        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white">
+          📝 Công cụ tiện ích
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-2xl text-sm md:text-base">
-          Trọn bộ công cụ xử lý văn bản, mã QR, bảo mật và tiện ích lập trình hoàn toàn bảo mật. 
-          Không có bất kỳ dữ liệu nào rời khỏi trình duyệt của bạn!
+        <p className="text-gray-650 dark:text-gray-400 mb-8 max-w-3xl text-sm md:text-base leading-relaxed">
+          Tạo QR code, đếm từ, tạo mật khẩu, format JSON — những thứ nhỏ nhưng cần mỗi ngày.
         </p>
 
         {/* Search */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-750 p-4 mb-8">
           <input
             type="text"
-            placeholder="Tìm nhanh tiện ích văn bản cần dùng (ví dụ: QR, đếm từ, mật khẩu...)..."
+            placeholder="Tìm nhanh công cụ cần dùng (ví dụ: QR, đếm từ, mật khẩu...)..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 dark:text-white transition-colors"
@@ -125,7 +124,7 @@ export default function TextToolsHubPage() {
                   {tool.description}
                 </p>
               </div>
-              <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1.5 transition-transform mt-auto">
+              <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-450 group-hover:translate-x-1.5 transition-transform mt-auto pt-2">
                 Mở công cụ <span>➔</span>
               </div>
             </Link>
@@ -135,7 +134,7 @@ export default function TextToolsHubPage() {
         {filteredTools.length === 0 && (
           <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-150 dark:border-gray-750">
             <p className="text-gray-500 dark:text-gray-400 text-sm">
-              Không tìm thấy công cụ văn bản nào khớp với từ khóa tìm kiếm.
+              Không tìm thấy công cụ tiện ích nào khớp với từ khóa tìm kiếm.
             </p>
           </div>
         )}

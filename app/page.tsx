@@ -3,22 +3,22 @@ import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "ZavClip - Công cụ văn phòng online Miễn phí & Bảo mật",
-  description: "ZavClip: Bộ công cụ văn phòng online 100% Client-side. Nén PDF, gộp PDF, chỉnh sửa ảnh, tiện ích text, meme generator, và soundboard hoàn toàn miễn phí và bảo mật tuyệt đối.",
+  description: "ZavClip: Bộ công cụ văn phòng online chạy trực tiếp trên máy của bạn. Nén PDF, gộp PDF, chỉnh sửa ảnh, đếm từ, tạo mã QR, chế meme, và soundboard hoàn toàn miễn phí và bảo mật tuyệt đối.",
 };
 
 const HUB_CARDS = [
   {
-    name: "PDF Tools",
+    name: "Công cụ PDF",
     emoji: "📄",
     href: "/pdf",
-    description: "Nén, gộp, tách, xoay, chuyển Word→PDF, PDF→ảnh cực nhanh và tiện lợi.",
+    description: "Nén, gộp, tách, xoay, chuyển Word sang PDF, chuyển PDF sang ảnh cực nhanh và tiện lợi.",
     badge: "10 công cụ",
     colorClass: "from-rose-500/10 to-orange-500/10 border-rose-500/20 dark:border-rose-500/30 group-hover:border-rose-500 dark:group-hover:border-rose-400 group-hover:shadow-rose-500/10",
     badgeColor: "bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400",
     iconBg: "bg-rose-50 dark:bg-rose-950/30 text-rose-550 dark:text-rose-400"
   },
   {
-    name: "Chỉnh Ảnh",
+    name: "Chỉnh sửa ảnh",
     emoji: "🖼️",
     href: "/image",
     description: "Nén ảnh, đổi định dạng PNG/JPG/WEBP, xóa nền bằng AI, cắt, resize ngay tại chỗ.",
@@ -51,8 +51,8 @@ const HUB_CARDS = [
     name: "Soundboard",
     emoji: "🎵",
     href: "/soundboard",
-    description: "50+ âm thanh hiệu ứng meme & nhạc game thịnh hành nhất hiện nay, bấm phát tức thì & tải về offline.",
-    badge: "50 sounds",
+    description: "50+ âm thanh hiệu ứng meme & nhạc game thịnh hành nhất hiện nay, bấm phát tức thì & tải về máy.",
+    badge: "50 âm thanh",
     colorClass: "from-amber-500/10 to-yellow-500/10 border-amber-500/20 dark:border-amber-500/30 group-hover:border-amber-500 dark:group-hover:border-amber-400 group-hover:shadow-amber-500/10",
     badgeColor: "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400",
     iconBg: "bg-amber-50 dark:bg-amber-950/30 text-amber-550 dark:text-amber-400"
@@ -67,7 +67,7 @@ export default function Home() {
         {/* Hero Section */}
         <div className="text-center mb-16 space-y-6">
           <span className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-white dark:bg-gray-800 text-xs font-bold text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-750 shadow-sm">
-            🔒 100% Client-side · $0 Server · Không cần đăng ký
+            🔒 Bảo mật tuyệt đối · Chạy trực tiếp trên trình duyệt · Không cần đăng ký
           </span>
           
           <h1 className="text-4xl md:text-6xl font-extrabold text-gray-900 dark:text-white tracking-tight leading-tight">
@@ -77,9 +77,9 @@ export default function Home() {
             </span>
           </h1>
           
-          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-xl mx-auto leading-relaxed">
-            Xử lý tệp tin PDF, tối ưu hóa ảnh và các tiện ích văn phòng trực tiếp ngay trên trình duyệt của bạn. 
-            <strong className="text-gray-850 dark:text-gray-250 font-bold block mt-1">File của bạn không bao giờ rời khỏi máy tính.</strong>
+          <p className="text-base md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
+            Xử lý file PDF, tối ưu hóa ảnh và các tiện ích văn phòng trực tiếp ngay trên máy của bạn.
+            <strong className="text-gray-850 dark:text-gray-250 font-bold block mt-1">Ảnh và tài liệu không bao giờ bị upload lên mạng!</strong>
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default function Home() {
         </div>
 
         {/* Trust Bar Footer */}
-        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-750/60 rounded-3xl p-6 shadow-sm max-w-3xl mx-auto">
+        <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-150 dark:border-gray-755 rounded-3xl p-6 shadow-sm max-w-3xl mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <div className="space-y-1">
               <span className="text-xl">🚀</span>
@@ -132,8 +132,8 @@ export default function Home() {
             </div>
             <div className="space-y-1">
               <span className="text-xl">🔌</span>
-              <p className="text-xs font-bold text-gray-800 dark:text-gray-200">Hoạt động offline</p>
-              <p className="text-[10px] text-gray-400">Xử lý ngay cả khi ngắt mạng</p>
+              <p className="text-xs font-bold text-gray-800 dark:text-gray-200">Hoạt động ngoại tuyến</p>
+              <p className="text-[10px] text-gray-400">Xử lý ngay cả khi không có mạng</p>
             </div>
           </div>
         </div>

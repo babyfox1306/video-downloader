@@ -132,10 +132,10 @@ export default function WordToPDFComponent() {
         </div>
 
         <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2 flex items-center gap-2">
-          <span>📝</span> Chuyển Word sang PDF (Word to PDF)
+          📝 Word sang PDF
         </h1>
         <p className="text-gray-500 dark:text-gray-400 text-sm mb-8">
-          Chuyển đổi tệp tài liệu văn phòng dạng Word `.docx` sang định dạng tệp tài liệu PDF giữ nguyên phông chữ hoàn toàn offline.
+          Chuyển đổi file tài liệu Word (.docx) của bạn sang định dạng PDF mà không bị lỗi phông chữ.
         </p>
 
         {!file ? (
@@ -170,7 +170,7 @@ export default function WordToPDFComponent() {
                   disabled={isProcessing}
                   className="w-full bg-gradient-to-r from-rose-500 to-orange-600 hover:from-rose-600 hover:to-orange-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 text-xs md:text-sm"
                 >
-                  {isProcessing ? "Đang xử lý..." : "📝 Bắt Đầu Chuyển Sang PDF"}
+                  {isProcessing ? "Đang xử lý..." : "📝 Chuyển Word sang PDF"}
                 </button>
               </div>
 
