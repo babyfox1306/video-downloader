@@ -14,16 +14,16 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "ZavClip - All-in-one Viral Clip Toolbox | 5 Tools in 1",
-  description: "ZavClip: Download viral clips, create face swaps, use soundboards, generate TTS clips, and make memes. All-in-one viral clip toolbox.",
+  title: "ZavClip - Công cụ văn phòng online Miễn phí & Bảo mật",
+  description: "ZavClip: Bộ công cụ văn phòng online 100% Client-side. Nén PDF, gộp PDF, chỉnh sửa ảnh, tiện ích text, meme generator, và soundboard hoàn toàn miễn phí và bảo mật tuyệt đối.",
 };
 
 const navItems = [
-  { name: "Downloader", href: "/downloader" },
-  { name: "Face Swap", href: "/face-swap" },
-  { name: "Soundboard", href: "/soundboard" },
-  { name: "TTS Clip Maker", href: "/tts" },
-  { name: "Meme Generator", href: "/meme" },
+  { name: "PDF Tools", emoji: "📄", href: "/pdf" },
+  { name: "Ảnh", emoji: "🖼️", href: "/image" },
+  { name: "Tiện ích", emoji: "📝", href: "/text" },
+  { name: "Meme", emoji: "😂", href: "/meme" },
+  { name: "Soundboard", emoji: "🎵", href: "/soundboard" },
 ];
 
 export default function RootLayout({
@@ -32,19 +32,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="vi">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100`}
       >
         {/* Top Navigation Bar (Desktop) */}
-        <nav className="hidden md:flex justify-center items-center gap-6 bg-gray-900 text-white py-4 px-6 shadow-lg">
+        <nav className="hidden md:flex justify-center items-center gap-6 bg-gray-900 text-white py-4 px-6 shadow-lg z-50">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors font-medium"
+              className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors font-semibold flex items-center gap-1.5 text-sm"
             >
-              {item.name}
+              <span>{item.emoji}</span>
+              <span>{item.name}</span>
             </Link>
           ))}
         </nav>
@@ -53,25 +54,26 @@ export default function RootLayout({
         <main className="flex-grow pb-20 md:pb-0">{children}</main>
 
         {/* Bottom Navigation Bar (Mobile) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-3 px-2 flex justify-around items-center shadow-lg z-50">
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-3 px-1 flex justify-around items-center shadow-2xl z-50 border-t border-gray-800">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="flex flex-col items-center gap-1 px-2 py-1 rounded-lg hover:bg-gray-800 transition-colors text-xs"
+              className="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg hover:bg-gray-800 transition-colors text-[10px] font-bold flex-1"
             >
-              <span className="text-center">{item.name}</span>
+              <span className="text-lg leading-none">{item.emoji}</span>
+              <span className="text-center truncate w-full">{item.name}</span>
             </Link>
           ))}
         </nav>
 
         {/* Footer with Ko-fi Button */}
-        <footer className="bg-gray-900 text-white py-6 px-4 text-center mt-auto">
+        <footer className="bg-gray-900 text-white py-6 px-4 text-center mt-auto border-t border-gray-800">
           <a
             href="https://ko-fi.com/kkamedia"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-block"
+            className="inline-block hover:scale-105 transition-transform"
           >
             <img
               height="36"
