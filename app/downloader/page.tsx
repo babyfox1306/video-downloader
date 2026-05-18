@@ -7,8 +7,8 @@ import { fetchFile, toBlobURL } from "@ffmpeg/util";
 // Force dynamic rendering (no SSR for FFmpeg.wasm)
 export const dynamic = 'force-dynamic';
 
-// CORS Proxy - dùng public CORS proxy
-const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+// CORS Proxy - dùng self-hosted CORS proxy
+const CORS_PROXY = "/api/sound-proxy?url=";
 
 export default function DownloaderPage() {
   const [url, setUrl] = useState("");

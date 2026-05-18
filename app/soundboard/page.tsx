@@ -2,83 +2,371 @@
 
 import { useState, useMemo, useRef } from "react";
 
-// CORS Proxy cho sounds
-const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+// Force dynamic rendering (no SSR for Soundboard to avoid hydration mismatch on Audio)
+export const dynamic = "force-dynamic";
 
-// 50 sounds thật - dùng CORS proxy để bypass CORS
+// 50 viral sounds divided into 4 categories: meme, game, effect, notification
 const SOUNDS = [
-  // Game sounds - dùng các nguồn public
-  { id: 1, name: "Game Over", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/game_over.mp3", category: "game" },
-  { id: 2, name: "Win", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/win.mp3", category: "game" },
-  { id: 3, name: "Coin", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/coin.mp3", category: "game" },
-  { id: 4, name: "Power Up", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/power_up.mp3", category: "game" },
-  { id: 5, name: "Level Up", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/level_up.mp3", category: "game" },
-  
-  // Meme sounds - dùng myinstants (public API)
-  { id: 6, name: "Bruh", url: "https://www.myinstants.com/media/sounds/bruh.mp3", category: "meme" },
-  { id: 7, name: "Oh No", url: "https://www.myinstants.com/media/sounds/oh-no.mp3", category: "meme" },
-  { id: 8, name: "Wow", url: "https://www.myinstants.com/media/sounds/wow.mp3", category: "meme" },
-  { id: 9, name: "Yahoo", url: "https://www.myinstants.com/media/sounds/yahoo.mp3", category: "meme" },
-  { id: 10, name: "Vine Boom", url: "https://www.myinstants.com/media/sounds/vine-boom.mp3", category: "meme" },
-  
-  // Effect sounds - dùng freesound preview (có CORS)
-  { id: 11, name: "Click", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  { id: 12, name: "Pop", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  { id: 13, name: "Whoosh", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  { id: 14, name: "Swoosh", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  { id: 15, name: "Zap", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  
-  // Notification sounds - dùng notificationsounds.com
-  { id: 16, name: "Bell", url: "https://notificationsounds.com/storage/sounds/notification-bell.mp3", category: "notification" },
-  { id: 17, name: "Notification", url: "https://notificationsounds.com/storage/sounds/notification.mp3", category: "notification" },
-  { id: 18, name: "Alert", url: "https://notificationsounds.com/storage/sounds/alert.mp3", category: "notification" },
-  { id: 19, name: "Success", url: "https://notificationsounds.com/storage/sounds/success.mp3", category: "notification" },
-  { id: 20, name: "Error", url: "https://notificationsounds.com/storage/sounds/error.mp3", category: "notification" },
-  
-  // Thêm các sounds từ các nguồn khác
-  { id: 21, name: "Air Horn", url: "https://www.myinstants.com/media/sounds/air-horn.mp3", category: "meme" },
-  { id: 22, name: "Record Scratch", url: "https://www.myinstants.com/media/sounds/record-scratch.mp3", category: "meme" },
-  { id: 23, name: "Windows XP", url: "https://www.myinstants.com/media/sounds/windows-xp-startup.mp3", category: "meme" },
-  { id: 24, name: "Fart", url: "https://www.myinstants.com/media/sounds/fart.mp3", category: "meme" },
-  { id: 25, name: "Gasp", url: "https://www.myinstants.com/media/sounds/gasp.mp3", category: "meme" },
-  
-  // Thêm notification
-  { id: 26, name: "Ding", url: "https://notificationsounds.com/storage/sounds/ding.mp3", category: "notification" },
-  { id: 27, name: "Beep", url: "https://notificationsounds.com/storage/sounds/beep.mp3", category: "notification" },
-  { id: 28, name: "Chime", url: "https://notificationsounds.com/storage/sounds/chime.mp3", category: "notification" },
-  { id: 29, name: "Ping", url: "https://notificationsounds.com/storage/sounds/ping.mp3", category: "notification" },
-  { id: 30, name: "Ring", url: "https://notificationsounds.com/storage/sounds/ring.mp3", category: "notification" },
-  
-  // Thêm game sounds
-  { id: 31, name: "Jump", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/jump.mp3", category: "game" },
-  { id: 32, name: "Collect", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/collect.mp3", category: "game" },
-  { id: 33, name: "Hit", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/hit.mp3", category: "game" },
-  { id: 34, name: "Shoot", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/shoot.mp3", category: "game" },
-  { id: 35, name: "Explosion", url: "https://www.zapsplat.com/wp-content/uploads/2015/sound-effects/explosion.mp3", category: "game" },
-  
-  // Thêm effect sounds từ freesound
-  { id: 36, name: "Laser", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  { id: 37, name: "Magic", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  { id: 38, name: "Slam", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  { id: 39, name: "Snap", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  { id: 40, name: "Tick", url: "https://freesound.org/data/previews/316/316847_5260866-lq.mp3", category: "effect" },
-  
-  // Thêm meme sounds
-  { id: 41, name: "Bruh Sound", url: "https://www.myinstants.com/media/sounds/bruh-sound-effect.mp3", category: "meme" },
-  { id: 42, name: "Crickets", url: "https://www.myinstants.com/media/sounds/crickets.mp3", category: "meme" },
-  { id: 43, name: "Sad Violin", url: "https://www.myinstants.com/media/sounds/sad-violin.mp3", category: "meme" },
-  { id: 44, name: "Trombone", url: "https://www.myinstants.com/media/sounds/trombone.mp3", category: "meme" },
-  { id: 45, name: "Tada", url: "https://www.myinstants.com/media/sounds/tada.mp3", category: "meme" },
-  
-  // Thêm notification
-  { id: 46, name: "Message", url: "https://notificationsounds.com/storage/sounds/message.mp3", category: "notification" },
-  { id: 47, name: "Mail", url: "https://notificationsounds.com/storage/sounds/mail.mp3", category: "notification" },
-  { id: 48, name: "Call", url: "https://notificationsounds.com/storage/sounds/call.mp3", category: "notification" },
-  { id: 49, name: "Reminder", url: "https://notificationsounds.com/storage/sounds/reminder.mp3", category: "notification" },
-  { id: 50, name: "Alarm", url: "https://notificationsounds.com/storage/sounds/alarm.mp3", category: "notification" },
+  // --- MEME (15 sounds) ---
+  {
+    id: 1,
+    name: "Bruh",
+    category: "meme",
+    emoji: "💀",
+    url: "https://www.myinstants.com/media/sounds/bruh.mp3"
+  },
+  {
+    id: 2,
+    name: "Vine Boom",
+    category: "meme",
+    emoji: "💥",
+    url: "https://www.myinstants.com/media/sounds/vine-boom.mp3"
+  },
+  {
+    id: 3,
+    name: "Roblox Oof",
+    category: "meme",
+    emoji: "🧸",
+    url: "https://www.myinstants.com/media/sounds/roblox-oof.mp3"
+  },
+  {
+    id: 4,
+    name: "Nyan Cat",
+    category: "meme",
+    emoji: "🐱",
+    url: "https://www.myinstants.com/media/sounds/nyan-cat.mp3"
+  },
+  {
+    id: 5,
+    name: "Among Us Sus",
+    category: "meme",
+    emoji: "🚨",
+    url: "https://www.myinstants.com/media/sounds/among-us-sus.mp3"
+  },
+  {
+    id: 6,
+    name: "Airhorn",
+    category: "meme",
+    emoji: "📢",
+    url: "https://www.myinstants.com/media/sounds/mlg-airhorn.mp3"
+  },
+  {
+    id: 7,
+    name: "Sad Violin",
+    category: "meme",
+    emoji: "🎻",
+    url: "https://www.myinstants.com/media/sounds/sad-violin.mp3"
+  },
+  {
+    id: 8,
+    name: "Anime Wow",
+    category: "meme",
+    emoji: "😮",
+    url: "https://www.myinstants.com/media/sounds/anime-wow.mp3"
+  },
+  {
+    id: 9,
+    name: "Woman Laughing",
+    category: "meme",
+    emoji: "😂",
+    url: "https://www.myinstants.com/media/sounds/woman-laughing.mp3"
+  },
+  {
+    id: 10,
+    name: "Crickets Meme",
+    category: "meme",
+    emoji: "🦗",
+    url: "https://www.myinstants.com/media/sounds/crickets.mp3"
+  },
+  {
+    id: 11,
+    name: "Sad Trombone",
+    category: "meme",
+    emoji: "🎺",
+    url: "https://www.myinstants.com/media/sounds/sad-trombone.mp3"
+  },
+  {
+    id: 12,
+    name: "Tada",
+    category: "meme",
+    emoji: "🎉",
+    url: "https://www.myinstants.com/media/sounds/tada.mp3"
+  },
+  {
+    id: 13,
+    name: "Galaxy Brain",
+    category: "meme",
+    emoji: "🧠",
+    url: "https://www.myinstants.com/media/sounds/galaxy-brain.mp3"
+  },
+  {
+    id: 14,
+    name: "Dramatic Hamster",
+    category: "meme",
+    emoji: "🐹",
+    url: "https://www.myinstants.com/media/sounds/dramatic.mp3"
+  },
+  {
+    id: 15,
+    name: "Windows XP Error",
+    category: "meme",
+    emoji: "💻",
+    url: "https://www.myinstants.com/media/sounds/windows-xp-error.mp3"
+  },
+
+  // --- GAME (15 sounds) ---
+  {
+    id: 16,
+    name: "Minecraft Hurt",
+    category: "game",
+    emoji: "🟩",
+    url: "https://www.myinstants.com/media/sounds/classic_hurt.mp3"
+  },
+  {
+    id: 17,
+    name: "Minecraft TNT",
+    category: "game",
+    emoji: "🧨",
+    url: "https://www.myinstants.com/media/sounds/tnt-explosion.mp3"
+  },
+  {
+    id: 18,
+    name: "Mario Jump",
+    category: "game",
+    emoji: "🍄",
+    url: "https://www.myinstants.com/media/sounds/mario-jump.mp3"
+  },
+  {
+    id: 19,
+    name: "Mario Coin",
+    category: "game",
+    emoji: "🪙",
+    url: "https://www.myinstants.com/media/sounds/mario-coin.mp3"
+  },
+  {
+    id: 20,
+    name: "Zelda Chest",
+    category: "game",
+    emoji: "🗝️",
+    url: "https://www.myinstants.com/media/sounds/zelda-chest.mp3"
+  },
+  {
+    id: 21,
+    name: "Sonic Ring",
+    category: "game",
+    emoji: "🌀",
+    url: "https://www.myinstants.com/media/sounds/sonic-ring-sound.mp3"
+  },
+  {
+    id: 22,
+    name: "Pacman Death",
+    category: "game",
+    emoji: "👾",
+    url: "https://www.myinstants.com/media/sounds/pacman-die.mp3"
+  },
+  {
+    id: 23,
+    name: "Tetris Theme",
+    category: "game",
+    emoji: "🧱",
+    url: "https://www.myinstants.com/media/sounds/tetris-theme.mp3"
+  },
+  {
+    id: 24,
+    name: "CS Headshot",
+    category: "game",
+    emoji: "🎯",
+    url: "https://www.myinstants.com/media/sounds/headshot.mp3"
+  },
+  {
+    id: 25,
+    name: "COD Tactical Nuke",
+    category: "game",
+    emoji: "☢️",
+    url: "https://www.myinstants.com/media/sounds/tactical-nuke.mp3"
+  },
+  {
+    id: 26,
+    name: "Among Us Emergency",
+    category: "game",
+    emoji: "🚨",
+    url: "https://www.myinstants.com/media/sounds/among-us-emergency-meeting.mp3"
+  },
+  {
+    id: 27,
+    name: "Among Us Kill",
+    category: "game",
+    emoji: "🔪",
+    url: "https://www.myinstants.com/media/sounds/among-us-kill.mp3"
+  },
+  {
+    id: 28,
+    name: "Fortnite Dance",
+    category: "game",
+    emoji: "🕺",
+    url: "https://www.myinstants.com/media/sounds/default-dance.mp3"
+  },
+  {
+    id: 29,
+    name: "CR Elixir Drop",
+    category: "game",
+    emoji: "🧪",
+    url: "https://www.myinstants.com/media/sounds/elixir.mp3"
+  },
+  {
+    id: 30,
+    name: "Pikachu Cry",
+    category: "game",
+    emoji: "⚡",
+    url: "https://www.myinstants.com/media/sounds/pikachu.mp3"
+  },
+
+  // --- EFFECT (10 sounds) ---
+  {
+    id: 31,
+    name: "Applause",
+    category: "effect",
+    emoji: "👏",
+    url: "https://assets.mixkit.co/active_storage/sfx/2816/2816-preview.mp3"
+  },
+  {
+    id: 32,
+    name: "Booing",
+    category: "effect",
+    emoji: "👎",
+    url: "https://www.myinstants.com/media/sounds/booing.mp3"
+  },
+  {
+    id: 33,
+    name: "Crickets SFX",
+    category: "effect",
+    emoji: "🦗",
+    url: "https://www.myinstants.com/media/sounds/crickets.mp3"
+  },
+  {
+    id: 34,
+    name: "Drum Roll",
+    category: "effect",
+    emoji: "🥁",
+    url: "https://www.myinstants.com/media/sounds/drum-roll.mp3"
+  },
+  {
+    id: 35,
+    name: "Cymbal Crash",
+    category: "effect",
+    emoji: "🟡",
+    url: "https://www.myinstants.com/media/sounds/cymbal.mp3"
+  },
+  {
+    id: 36,
+    name: "Bell Ding",
+    category: "effect",
+    emoji: "🔔",
+    url: "https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"
+  },
+  {
+    id: 37,
+    name: "Pop Bubble",
+    category: "effect",
+    emoji: "🎈",
+    url: "https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3"
+  },
+  {
+    id: 38,
+    name: "Swoosh",
+    category: "effect",
+    emoji: "💨",
+    url: "https://www.myinstants.com/media/sounds/swoosh.mp3"
+  },
+  {
+    id: 39,
+    name: "Laser Beam",
+    category: "effect",
+    emoji: "🔫",
+    url: "https://www.myinstants.com/media/sounds/laser.mp3"
+  },
+  {
+    id: 40,
+    name: "Explosion Boom",
+    category: "effect",
+    emoji: "💥",
+    url: "https://www.myinstants.com/media/sounds/explosion.mp3"
+  },
+
+  // --- NOTIFICATION (10 sounds) ---
+  {
+    id: 41,
+    name: "Discord Ping",
+    category: "notification",
+    emoji: "💬",
+    url: "https://www.myinstants.com/media/sounds/discord-notification.mp3"
+  },
+  {
+    id: 42,
+    name: "Messenger Ring",
+    category: "notification",
+    emoji: "🔵",
+    url: "https://www.myinstants.com/media/sounds/messenger.mp3"
+  },
+  {
+    id: 43,
+    name: "Apple Pay Pay",
+    category: "notification",
+    emoji: "💳",
+    url: "https://www.myinstants.com/media/sounds/apple-pay.mp3"
+  },
+  {
+    id: 44,
+    name: "Android Notif",
+    category: "notification",
+    emoji: "🤖",
+    url: "https://www.myinstants.com/media/sounds/android-notification.mp3"
+  },
+  {
+    id: 45,
+    name: "FaceTime Call",
+    category: "notification",
+    emoji: "📞",
+    url: "https://www.myinstants.com/media/sounds/facetime.mp3"
+  },
+  {
+    id: 46,
+    name: "WhatsApp Ping",
+    category: "notification",
+    emoji: "🟢",
+    url: "https://www.myinstants.com/media/sounds/whatsapp.mp3"
+  },
+  {
+    id: 47,
+    name: "Telegram Ping",
+    category: "notification",
+    emoji: "✈️",
+    url: "https://www.myinstants.com/media/sounds/telegram-notification.mp3"
+  },
+  {
+    id: 48,
+    name: "Email Sent",
+    category: "notification",
+    emoji: "✉️",
+    url: "https://www.myinstants.com/media/sounds/mail-sent.mp3"
+  },
+  {
+    id: 49,
+    name: "Slack Ping",
+    category: "notification",
+    emoji: "🟨",
+    url: "https://www.myinstants.com/media/sounds/slack.mp3"
+  },
+  {
+    id: 50,
+    name: "MS Teams Call",
+    category: "notification",
+    emoji: "💜",
+    url: "https://www.myinstants.com/media/sounds/teams-ringtone.mp3"
+  }
 ];
 
-const CATEGORIES = ["all", "meme", "game", "effect", "music", "notification", "crowd", "nature"];
+const CATEGORIES = ["all", "meme", "game", "effect", "notification"];
 
 export default function SoundboardPage() {
   const [search, setSearch] = useState("");
@@ -95,7 +383,7 @@ export default function SoundboardPage() {
     });
   }, [search, category]);
 
-  const playSound = async (sound: typeof SOUNDS[0]) => {
+  const playSound = (sound: typeof SOUNDS[0]) => {
     setError(null);
     
     // Stop current sound if playing
@@ -105,83 +393,60 @@ export default function SoundboardPage() {
         currentAudio.pause();
         currentAudio.currentTime = 0;
       }
+      
+      // If user clicked the same sound that was playing, just stop it and return
+      if (playingId === sound.id) {
+        setPlayingId(null);
+        return;
+      }
     }
 
     // Get or create audio element
     let audio = audioRefs.current.get(sound.id);
     if (!audio) {
-      audio = new Audio();
-      audio.crossOrigin = "anonymous";
+      audio = new Audio(sound.url);
+      
+      // Note: By NOT setting crossOrigin, browser handles standard playback perfectly
+      // without CORS limitations. If it still fails, the error handler will fallback.
       audioRefs.current.set(sound.id, audio);
       
       audio.onended = () => {
         setPlayingId(null);
       };
 
-      audio.onerror = (e) => {
-        console.error(`Failed to load sound: ${sound.name}`, audio?.error);
+      audio.onerror = () => {
+        console.error(`Failed to load sound: ${sound.name}`);
         setPlayingId(null);
-        const errorMsg = audio?.error?.message || "URL không hợp lệ hoặc bị chặn CORS";
-        setError(`"${sound.name}": ${errorMsg}. Vui lòng thử sound khác hoặc tải về để nghe.`);
+        // Fallback: Mở liên kết trực tiếp trong tab mới
+        window.open(sound.url, "_blank");
+        setError(`"${sound.name}" gặp sự cố CORS/Mạng. Đã tự động mở liên kết trực tiếp để phát trong tab mới.`);
       };
     }
 
     try {
-      // Dùng CORS proxy nếu URL bị chặn CORS
-      let audioUrl = sound.url;
-      
-      // Kiểm tra nếu URL có thể bị CORS (myinstants, zapsplat, etc.)
-      if (sound.url.includes("myinstants.com") || sound.url.includes("zapsplat.com") || sound.url.includes("freesound.org")) {
-        // Thử dùng CORS proxy
-        try {
-          const proxyUrl = `${CORS_PROXY}${encodeURIComponent(sound.url)}`;
-          // Test proxy trước
-          const testResponse = await fetch(proxyUrl, { method: "HEAD" }).catch(() => null);
-          if (testResponse && testResponse.ok) {
-            audioUrl = proxyUrl;
-          }
-        } catch (e) {
-          // Nếu proxy fail, dùng URL gốc
-          console.log("CORS proxy failed, using original URL");
-        }
-      }
-      
-      // Set source if changed
-      if (audio.src !== audioUrl) {
-        audio.src = audioUrl;
-      }
-      
-      // Reset and play
       audio.currentTime = 0;
-      await audio.play();
-      setPlayingId(sound.id);
-    } catch (error: any) {
-      console.error("Play error:", error);
-      setPlayingId(null);
-      
-      if (error.name === "NotAllowedError") {
-        setError("Trình duyệt chặn tự động phát. Vui lòng click lại nút play.");
-      } else if (error.name === "NotSupportedError" || error.message?.includes("no supported sources")) {
-        setError(`"${sound.name}": Định dạng không được hỗ trợ hoặc URL không hợp lệ. Vui lòng thử sound khác.`);
-      } else {
-        setError(`"${sound.name}": ${error.message || "Lỗi không xác định"}. Vui lòng thử sound khác.`);
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setPlayingId(sound.id);
+          })
+          .catch((err) => {
+            console.error("Autoplay / playback blocked:", err);
+            setPlayingId(null);
+            if (err.name === "NotAllowedError") {
+              setError("Trình duyệt chặn tự động phát. Vui lòng nhấn nút phát một lần nữa.");
+            } else {
+              window.open(sound.url, "_blank");
+              setError(`Không thể phát "${sound.name}". Đã tự động mở liên kết phát trực tiếp trong tab mới.`);
+            }
+          });
       }
-    }
-  };
-
-  const downloadSound = (sound: typeof SOUNDS[0]) => {
-    try {
-      const link = document.createElement("a");
-      link.href = sound.url;
-      link.download = `${sound.name}.${sound.url.split('.').pop()?.split('?')[0] || 'mp3'}`;
-      link.target = "_blank";
-      link.rel = "noopener noreferrer";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      console.error("Download error:", error);
+    } catch (err: any) {
+      console.error("Play error:", err);
+      setPlayingId(null);
       window.open(sound.url, "_blank");
+      setError(`Lỗi phát: ${err.message || "Không xác định"}. Đã mở liên kết trong tab mới.`);
     }
   };
 
@@ -192,15 +457,15 @@ export default function SoundboardPage() {
           Soundboard
         </h1>
         <p className="text-center text-gray-600 dark:text-gray-400 mb-8">
-          {SOUNDS.length} sounds miễn phí - Click để nghe, tải về ngay!
+          {SOUNDS.length} âm thanh viral cực chất - Click để phát ngay, tải về miễn phí!
         </p>
 
         {error && (
-          <div className="mb-4 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 rounded-lg">
-            <p className="text-red-700 dark:text-red-400 text-sm">{error}</p>
+          <div className="mb-6 p-4 bg-red-100 dark:bg-red-900/30 border border-red-400 dark:border-red-700 rounded-lg flex justify-between items-center">
+            <p className="text-red-700 dark:text-red-400 text-sm font-medium">{error}</p>
             <button
               onClick={() => setError(null)}
-              className="mt-2 text-xs text-red-600 dark:text-red-400 underline"
+              className="text-xs text-red-600 dark:text-red-400 underline font-semibold ml-4 hover:no-underline"
             >
               Đóng
             </button>
@@ -208,23 +473,23 @@ export default function SoundboardPage() {
         )}
 
         {/* Search and Filter */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 mb-8">
           <div className="flex flex-col md:flex-row gap-4">
             <input
               type="text"
-              placeholder="Tìm kiếm sound..."
+              placeholder="Tìm kiếm âm thanh (Bruh, Minecraft, FaceTime...)..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors"
             />
             <select
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              className="px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white"
+              className="px-4 py-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 dark:bg-gray-700 dark:text-white transition-colors capitalize font-semibold cursor-pointer"
             >
               {CATEGORIES.map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat === "all" ? "Tất cả" : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  {cat === "all" ? "Tất cả" : cat}
                 </option>
               ))}
             </select>
@@ -236,50 +501,65 @@ export default function SoundboardPage() {
           {filteredSounds.map((sound) => (
             <div
               key={sound.id}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-4 hover:shadow-xl transition-shadow"
+              className="bg-white dark:bg-gray-800 rounded-xl shadow-md hover:shadow-xl transition-all duration-200 p-4 border border-gray-100 dark:border-gray-750 flex flex-col justify-between"
             >
-              <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-lg mb-3 flex items-center justify-center">
-                {playingId === sound.id ? (
-                  <div className="animate-pulse text-4xl">🔊</div>
-                ) : (
-                  <div className="text-4xl">🎵</div>
-                )}
+              <div>
+                <div className="aspect-square bg-gradient-to-br from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-lg mb-3 flex items-center justify-center shadow-inner relative overflow-hidden group">
+                  {playingId === sound.id ? (
+                    <div className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-20"></div>
+                  ) : null}
+                  {playingId === sound.id ? (
+                    <div className="animate-pulse text-5xl z-10">🔊</div>
+                  ) : (
+                    <div className="text-5xl group-hover:scale-110 transition-transform duration-200 z-10 select-none">
+                      {sound.emoji || "🎵"}
+                    </div>
+                  )}
+                </div>
+                <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-3 line-clamp-2 text-center h-10 flex items-center justify-center">
+                  {sound.name}
+                </h3>
               </div>
-              <h3 className="font-semibold text-gray-900 dark:text-white text-sm mb-3 line-clamp-2">
-                {sound.name}
-              </h3>
-              <div className="flex gap-2">
+              <div className="flex gap-2 w-full mt-auto">
                 <button
                   onClick={() => playSound(sound)}
-                  className="flex-1 px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-xs font-semibold disabled:opacity-50"
-                  disabled={playingId === sound.id}
+                  className={`flex-1 px-3 py-2 text-white rounded-lg transition-colors text-xs font-bold flex items-center justify-center cursor-pointer shadow-sm ${
+                    playingId === sound.id
+                      ? "bg-red-650 hover:bg-red-750"
+                      : "bg-blue-600 hover:bg-blue-700"
+                  }`}
+                  title={playingId === sound.id ? "Dừng âm thanh" : "Phát âm thanh"}
                 >
-                  {playingId === sound.id ? "⏸" : "▶"}
+                  {playingId === sound.id ? "⏸ Dừng" : "▶ Phát"}
                 </button>
-                <button
-                  onClick={() => downloadSound(sound)}
-                  className="px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-xs"
-                  title="Tải về"
+                <a
+                  href={sound.url}
+                  download={`${sound.name}.mp3`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition-colors text-xs font-bold flex items-center justify-center shadow-sm cursor-pointer"
+                  title="Tải về file MP3"
                 >
-                  ⬇
-                </button>
+                  ⬇ Tải
+                </a>
               </div>
             </div>
           ))}
         </div>
 
         {filteredSounds.length === 0 && (
-          <div className="text-center py-12">
-            <p className="text-gray-500 dark:text-gray-400">
-              Không tìm thấy sound nào. Thử tìm kiếm khác nhé!
+          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-xl shadow-md border border-gray-100 dark:border-gray-750">
+            <div className="text-5xl mb-4">🔍</div>
+            <p className="text-gray-500 dark:text-gray-400 font-medium">
+              Không tìm thấy âm thanh nào khớp với từ khóa tìm kiếm.
             </p>
           </div>
         )}
 
-        <div className="mt-8 text-center text-gray-600 dark:text-gray-400 text-sm">
-          <p>Tất cả sounds đều miễn phí từ các nguồn công khai</p>
-          <p className="text-xs mt-2 text-gray-500">
-            Lưu ý: Một số sounds có thể không phát được do CORS. Vui lòng thử sound khác hoặc tải về để nghe.
+        <div className="mt-12 text-center text-gray-500 dark:text-gray-400 text-sm border-t border-gray-200 dark:border-gray-700 pt-6">
+          <p className="font-medium">Tất cả các hiệu ứng âm thanh đều miễn phí và thuộc phạm vi công cộng.</p>
+          <p className="text-xs mt-2 text-gray-400">
+            Mẹo: Nếu bấm nút phát bị lỗi do chặn CORS từ server gốc, hệ thống sẽ tự động mở âm thanh trong tab mới để bạn nghe và tải về trực tiếp.
           </p>
         </div>
       </div>
