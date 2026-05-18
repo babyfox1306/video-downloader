@@ -8,36 +8,31 @@ const DATA_TOOLS = [
     id: "csv-to-excel",
     name: "Chuyển CSV sang Excel",
     description: "Nhập hoặc tải file CSV (.csv) lên để tự động định dạng và chuyển thành file Excel (.xlsx) tải về.",
-    emoji: "📊",
-    color: "from-emerald-500 to-teal-600"
+    emoji: "📊"
   },
   {
     id: "excel-to-csv",
     name: "Chuyển Excel sang CSV",
     description: "Trích xuất nhanh toàn bộ dữ liệu từ bảng tính Excel (.xlsx, .xls) thành tệp tin CSV gọn nhẹ.",
-    emoji: "📝",
-    color: "from-blue-500 to-cyan-500"
+    emoji: "📝"
   },
   {
     id: "json-to-csv",
     name: "Chuyển JSON sang CSV / Excel",
     description: "Chuyển đổi hai chiều giữa định dạng cấu trúc JSON và dạng bảng CSV/Excel cực nhanh.",
-    emoji: "🔀",
-    color: "from-purple-500 to-indigo-600"
+    emoji: "🔀"
   },
   {
     id: "view-excel",
     name: "Xem nhanh file Excel",
     description: "Mở nhanh file Excel (.xlsx) để xem dạng bảng HTML, hỗ trợ chuyển đổi giữa nhiều sheet không cần cài Office.",
-    emoji: "👁️",
-    color: "from-amber-500 to-orange-600"
+    emoji: "👁️"
   },
   {
     id: "remove-duplicates",
     name: "Xóa dòng trùng lặp",
     description: "Tải file CSV/Excel lên để lọc sạch sẽ tất cả những bản ghi trùng lặp và xuất tệp tin sạch về máy.",
-    emoji: "🧹",
-    color: "from-pink-500 to-rose-600"
+    emoji: "🧹"
   }
 ];
 
@@ -51,68 +46,63 @@ export default function DataToolsHubPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 py-12 px-4">
-      <div className="container mx-auto max-w-6xl">
-        {/* Breadcrumb */}
+    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0F172A] py-12 px-4 transition-colors">
+      <div className="container mx-auto max-w-5xl">
+        {/* Minimalist Breadcrumb */}
         <div className="mb-6">
           <Link
             href="/"
-            className="text-sm font-semibold text-emerald-600 dark:text-emerald-455 hover:underline flex items-center gap-1.5"
+            className="text-xs font-semibold text-[#4F46E5] dark:text-[#6366F1] hover:underline flex items-center gap-1"
           >
-            <span>🏠</span> Trang chủ
+            <span>➔</span> Quay lại Trang chủ
           </Link>
         </div>
 
-        {/* Title */}
-        <h1 className="text-4xl md:text-5xl font-extrabold mb-3 text-gray-900 dark:text-white">
-          📊 Bảng tính & Dữ liệu
-        </h1>
-        <p className="text-gray-655 dark:text-gray-400 mb-8 max-w-3xl text-sm md:text-base leading-relaxed">
-          Đổi đuôi file Excel, CSV, JSON, xem trước nội dung bảng tính cực nhanh hoặc lọc trùng dòng dữ liệu — 100% offline và an toàn bảo mật tuyệt đối cho mọi dữ liệu của bạn.
-        </p>
+        {/* Clean Header */}
+        <div className="mb-8 space-y-2">
+          <h1 className="text-3xl font-bold text-[#111827] dark:text-[#F1F5F9] flex items-center gap-2">
+            <span>📊</span> Bảng tính & Dữ liệu
+          </h1>
+          <p className="text-sm text-[#6B7280] dark:text-[#94A3B8]">
+            Đổi đuôi file Excel, CSV, JSON, xem trước nội dung bảng trực tiếp offline hoàn toàn an toàn bảo mật.
+          </p>
+        </div>
 
         {/* Search */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-750 p-4 mb-8">
+        <div className="mb-8">
           <input
             type="text"
-            placeholder="Tìm nhanh công cụ bảng tính cần dùng (ví dụ: chuyển Excel, CSV, xóa dòng trùng...)..."
+            placeholder="Tìm nhanh công cụ bảng tính..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-gray-50 dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 dark:text-white transition-colors"
+            className="w-full max-w-md bg-white dark:bg-[#1E293B] border border-[#E5E7EB] dark:border-[#334155] rounded-lg px-4 py-2.5 text-xs focus:outline-none focus:border-[#4F46E5] dark:focus:border-[#6366F1] dark:text-white transition-colors shadow-sm"
           />
         </div>
 
-        {/* Grid */}
+        {/* Cruip Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredTools.map((tool) => (
             <Link
               key={tool.id}
               href={`/data/${tool.id}`}
-              className="bg-white dark:bg-gray-800 rounded-2xl p-6 shadow-sm hover:shadow-xl transition-all duration-200 border border-gray-100 dark:border-gray-750 flex flex-col justify-between group transform hover:-translate-y-1"
+              className="group block bg-white dark:bg-[#1E293B] rounded-xl p-5 border border-[#E5E7EB] dark:border-[#334155] shadow-sm hover:shadow-md hover:-translate-y-0.5 hover:border-[#4F46E5] dark:hover:border-[#6366F1] transition-all duration-200"
             >
-              <div>
-                <div
-                  className={`w-12 h-12 rounded-xl bg-gradient-to-br ${tool.color} text-white flex items-center justify-center text-2xl shadow-md mb-4 group-hover:scale-110 transition-transform`}
-                >
-                  {tool.emoji}
-                </div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-2 group-hover:text-emerald-500 transition-colors">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-lg leading-none">{tool.emoji}</span>
+                <h3 className="text-sm font-bold text-[#111827] dark:text-[#F1F5F9] group-hover:text-[#4F46E5] dark:group-hover:text-[#6366F1] transition-colors">
                   {tool.name}
                 </h3>
-                <p className="text-gray-500 dark:text-gray-400 text-xs md:text-sm leading-relaxed mb-4">
-                  {tool.description}
-                </p>
               </div>
-              <div className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-450 group-hover:translate-x-1.5 transition-transform mt-auto pt-2">
-                Mở công cụ <span>➔</span>
-              </div>
+              <p className="text-xs text-[#6B7280] dark:text-[#94A3B8] leading-relaxed">
+                {tool.description}
+              </p>
             </Link>
           ))}
         </div>
 
         {filteredTools.length === 0 && (
-          <div className="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-150 dark:border-gray-755">
-            <p className="text-gray-500 dark:text-gray-400 text-sm">
+          <div className="text-center py-16 bg-white dark:bg-[#1E293B] rounded-xl border border-[#E5E7EB] dark:border-[#334155] shadow-sm">
+            <p className="text-xs text-[#6B7280] dark:text-[#94A3B8]">
               Không tìm thấy công cụ dữ liệu nào khớp với từ khóa tìm kiếm.
             </p>
           </div>

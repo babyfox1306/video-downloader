@@ -32,56 +32,64 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi">
+    <html lang="vi" className="scroll-smooth">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-[#F9FAFB] dark:bg-[#0F172A] text-[#111827] dark:text-[#F1F5F9] font-sans`}
       >
-        {/* Top Navigation Bar (Desktop) */}
-        <nav className="hidden md:flex justify-center items-center gap-6 bg-gray-900 text-white py-4 px-6 shadow-lg z-50">
-          {navItems.map((item) => (
+        {/* Header Navigation */}
+        <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md border-b border-[#E5E7EB] dark:border-[#334155] transition-colors">
+          <div className="container mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
+            {/* Logo */}
             <Link
-              key={item.name}
-              href={item.href}
-              className="px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors font-semibold flex items-center gap-1.5 text-sm"
+              href="/"
+              className="text-xl font-bold tracking-tight text-[#111827] dark:text-[#F1F5F9] hover:text-[#4F46E5] dark:hover:text-[#6366F1] transition-colors"
             >
-              <span>{item.emoji}</span>
-              <span>{item.name}</span>
+              ZavClip
             </Link>
-          ))}
-        </nav>
+
+            {/* Desktop Nav Links */}
+            <nav className="hidden md:flex items-center gap-6">
+              {navItems.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm font-medium text-[#6B7280] dark:text-[#94A3B8] hover:text-[#111827] dark:hover:text-[#F1F5F9] transition-colors flex items-center gap-1"
+                >
+                  <span>{item.emoji}</span>
+                  <span>{item.name}</span>
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </header>
 
         {/* Main Content */}
         <main className="flex-grow pb-20 md:pb-0">{children}</main>
 
-        {/* Bottom Navigation Bar (Mobile) */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-gray-900 text-white py-3 px-1 flex justify-around items-center shadow-2xl z-50 border-t border-gray-800">
+        {/* Mobile Bottom Nav */}
+        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#0F172A] border-t border-[#E5E7EB] dark:border-[#334155] py-2 px-1 flex justify-around items-center z-50 shadow-lg">
           {navItems.map((item) => (
             <Link
               key={item.name}
               href={item.href}
-              className="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg hover:bg-gray-800 transition-colors text-[10px] font-bold flex-1"
+              className="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg text-[10px] font-semibold text-[#6B7280] dark:text-[#94A3B8] hover:text-[#4F46E5] dark:hover:text-[#6366F1] transition-colors flex-1"
             >
-              <span className="text-lg leading-none">{item.emoji}</span>
+              <span className="text-base leading-none">{item.emoji}</span>
               <span className="text-center truncate w-full">{item.name}</span>
             </Link>
           ))}
         </nav>
 
-        {/* Footer with Ko-fi Button */}
-        <footer className="bg-gray-900 text-white py-6 px-4 text-center mt-auto border-t border-gray-800">
-          <a
-            href="https://ko-fi.com/kkamedia"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-block hover:scale-105 transition-transform"
-          >
-            <img
-              height="36"
-              style={{ border: 0, height: "36px" }}
-              src="https://storage.ko-fi.com/cdn/kofi2.png?v=3"
-              alt="Buy Me a Coffee at ko-fi.com"
-            />
-          </a>
+        {/* Minimalist Footer */}
+        <footer className="bg-white dark:bg-[#0F172A] py-8 border-t border-[#E5E7EB] dark:border-[#334155] text-center text-xs text-[#6B7280] dark:text-[#94A3B8] transition-colors">
+          <div className="container mx-auto px-4 space-y-2">
+            <p className="font-semibold text-[#111827] dark:text-[#F1F5F9]">
+              ZavClip — Công cụ văn phòng 100% chạy cục bộ trên trình duyệt
+            </p>
+            <p>
+              © {new Date().getFullYear()} ZavClip. Bảo mật dữ liệu tuyệt đối của bạn.
+            </p>
+          </div>
         </footer>
       </body>
     </html>
