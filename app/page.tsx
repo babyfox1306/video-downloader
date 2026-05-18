@@ -28,7 +28,7 @@ const HUB_CARDS = [
     iconBg: "bg-blue-50 dark:bg-blue-950/30 text-blue-550 dark:text-blue-400"
   },
   {
-    name: "Tiện ích",
+    name: "Tiện ích văn phòng",
     emoji: "📝",
     href: "/text",
     description: "Đếm từ, tạo mã QR, mật khẩu ngẫu nhiên, barcode, format định dạng JSON, tra cứu mã màu sắc.",
@@ -42,7 +42,7 @@ const HUB_CARDS = [
     emoji: "😂",
     href: "/meme",
     description: "Chế meme từ 100+ template viral hàng đầu, thêm nhiều chữ, kéo thả kéo dãn, tải ảnh nét về máy.",
-    badge: "Mới",
+    badge: "Thiết kế",
     colorClass: "from-purple-500/10 to-fuchsia-500/10 border-purple-500/20 dark:border-purple-500/30 group-hover:border-purple-500 dark:group-hover:border-purple-400 group-hover:shadow-purple-500/10",
     badgeColor: "bg-purple-100 dark:bg-purple-950/60 text-purple-700 dark:text-purple-400",
     iconBg: "bg-purple-50 dark:bg-purple-950/30 text-purple-550 dark:text-purple-400"
@@ -56,6 +56,56 @@ const HUB_CARDS = [
     colorClass: "from-amber-500/10 to-yellow-500/10 border-amber-500/20 dark:border-amber-500/30 group-hover:border-amber-500 dark:group-hover:border-amber-400 group-hover:shadow-amber-500/10",
     badgeColor: "bg-amber-100 dark:bg-amber-950/60 text-amber-700 dark:text-amber-400",
     iconBg: "bg-amber-50 dark:bg-amber-950/30 text-amber-550 dark:text-amber-400"
+  },
+  {
+    name: "Tiện ích Việt Nam",
+    emoji: "🇻🇳",
+    href: "/vietnam",
+    description: "Xem Âm Dương lịch, kiểm tra số thẻ CCCD, tạo họ tên giả cho dev và thiết kế hóa đơn bán lẻ nhanh.",
+    badge: "5 công cụ",
+    colorClass: "from-red-500/10 to-yellow-500/10 border-red-500/20 dark:border-red-500/30 group-hover:border-red-500 dark:group-hover:border-red-400 group-hover:shadow-red-500/10",
+    badgeColor: "bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-450",
+    iconBg: "bg-red-50 dark:bg-red-950/30 text-red-550 dark:text-red-450"
+  },
+  {
+    name: "Tính toán & Tra cứu",
+    emoji: "🧮",
+    href: "/calc",
+    description: "Tính bảng lãi vay ngân hàng, đổi đơn vị đo lường (mẫu/sào), chỉ số BMI, tuổi chính xác.",
+    badge: "6 công cụ",
+    colorClass: "from-teal-500/10 to-emerald-500/10 border-teal-500/20 dark:border-teal-500/30 group-hover:border-teal-500 dark:group-hover:border-teal-400 group-hover:shadow-teal-500/10",
+    badgeColor: "bg-teal-100 dark:bg-teal-950/60 text-teal-700 dark:text-teal-400",
+    iconBg: "bg-teal-50 dark:bg-teal-950/30 text-teal-550 dark:text-teal-400"
+  },
+  {
+    name: "Thiết kế nhanh",
+    emoji: "🎨",
+    href: "/design",
+    description: "Tạo ảnh mẫu placeholder, thiết kế màu dải CSS Gradient, tạo bóng box-shadow và nén favicon.ico.",
+    badge: "5 công cụ",
+    colorClass: "from-cyan-500/10 to-sky-500/10 border-cyan-500/20 dark:border-cyan-500/30 group-hover:border-cyan-500 dark:group-hover:border-cyan-400 group-hover:shadow-cyan-500/10",
+    badgeColor: "bg-cyan-100 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-400",
+    iconBg: "bg-cyan-50 dark:bg-cyan-950/30 text-cyan-550 dark:text-cyan-400"
+  },
+  {
+    name: "Bảng tính & Dữ liệu",
+    emoji: "📊",
+    href: "/data",
+    description: "Đổi đuôi file Excel, CSV, JSON qua lại nhanh chóng, xem file Excel online, lọc trùng dòng dữ liệu.",
+    badge: "5 công cụ",
+    colorClass: "from-indigo-500/10 to-violet-500/10 border-indigo-500/20 dark:border-indigo-500/30 group-hover:border-indigo-500 dark:group-hover:border-indigo-400 group-hover:shadow-indigo-500/10",
+    badgeColor: "bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400",
+    iconBg: "bg-indigo-50 dark:bg-indigo-950/30 text-indigo-550 dark:text-indigo-400"
+  },
+  {
+    name: "Xử lý Video & Audio",
+    emoji: "🎬",
+    href: "/video",
+    description: "Cắt video online, tách nhạc MP3 từ clip, nén dung lượng video, đổi định dạng file âm thanh.",
+    badge: "4 công cụ",
+    colorClass: "from-pink-500/10 to-rose-500/10 border-pink-500/20 dark:border-pink-500/30 group-hover:border-pink-500 dark:group-hover:border-pink-400 group-hover:shadow-pink-500/10",
+    badgeColor: "bg-pink-100 dark:bg-pink-950/60 text-pink-700 dark:text-pink-400",
+    iconBg: "bg-pink-50 dark:bg-pink-950/30 text-pink-550 dark:text-pink-400"
   }
 ];
 

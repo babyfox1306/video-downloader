@@ -5,6 +5,41 @@ import { useState } from "react";
 
 const TEXT_TOOLS = [
   {
+    id: "number-to-words",
+    name: "Số → Chữ tiếng Việt",
+    description: "Đọc số tiền, số đếm siêu lớn thành văn bản chữ tiếng Việt chuẩn xác và nhanh chóng.",
+    emoji: "🔢",
+    color: "from-emerald-500 to-green-500"
+  },
+  {
+    id: "case-convert",
+    name: "Chuyển kiểu chữ",
+    description: "Chuyển nhanh kiểu chữ sang viết hoa, viết thường, hoa đầu từ, hoa đầu câu lập tức.",
+    emoji: "🔤",
+    color: "from-blue-500 to-indigo-500"
+  },
+  {
+    id: "text-diff",
+    name: "So sánh 2 văn bản",
+    description: "Highlight và so sánh sự khác nhau, phần thêm mới hoặc bị xóa giữa hai tài liệu.",
+    emoji: "🔍",
+    color: "from-cyan-500 to-teal-500"
+  },
+  {
+    id: "clean-text",
+    name: "Dọn dẹp văn bản",
+    description: "Xóa khoảng trắng thừa, xóa dòng trống, chuyển tab, chuẩn hóa dấu câu nhanh chóng.",
+    emoji: "🧹",
+    color: "from-yellow-500 to-amber-500"
+  },
+  {
+    id: "keyword-count",
+    name: "Phân tích từ khóa",
+    description: "Đếm số lần xuất hiện và mật độ phần trăm của các từ khóa trong văn bản chi tiết.",
+    emoji: "📊",
+    color: "from-orange-500 to-red-500"
+  },
+  {
     id: "word-count",
     name: "Đếm từ & ký tự",
     description: "Đếm nhanh số từ, số chữ, số dòng, xem mất bao lâu để đọc xong một bài viết.",
