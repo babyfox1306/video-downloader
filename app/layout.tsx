@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "ZavClip - Công cụ văn phòng online miễn phí",
-  description: "Bộ công cụ PDF, ảnh, tính toán, tiện ích Việt Nam - miễn phí, không cần cài đặt, file không rời máy bạn",
+  description: "Bộ công cụ PDF, ảnh, tính toán, tiện ích Việt Nam. Miễn phí, không cần cài đặt, file không rời khỏi máy bạn.",
 };
 
 const navItems = [
@@ -24,6 +24,8 @@ const navItems = [
   { name: "Tiện ích", emoji: "📝", href: "/text" },
   { name: "Tính toán", emoji: "🧮", href: "/calc" },
   { name: "Việt Nam", emoji: "🇻🇳", href: "/vietnam" },
+  { name: "Meme", emoji: "😂", href: "/meme" },
+  { name: "Soundboard", emoji: "🎵", href: "/soundboard" },
 ];
 
 export default function RootLayout({
