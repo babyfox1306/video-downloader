@@ -1,9 +1,7 @@
 "use client";
 
-import Script from "next/script";
 import { useEffect, useRef } from "react";
-
-const CLIENT = process.env.NEXT_PUBLIC_ADSENSE_CLIENT;
+import { ADSENSE_CLIENT } from "@/lib/adsense";
 
 type AdBannerProps = {
   slot: string;
@@ -11,22 +9,7 @@ type AdBannerProps = {
   className?: string;
 };
 
-/** Loads AdSense script once (root layout). */
-export function AdSenseScript() {
-  if (!CLIENT) return null;
-
-  return (
-    <Script
-      id="adsense-init"
-      async
-      src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${CLIENT}`}
-      crossOrigin="anonymous"
-      strategy="afterInteractive"
-    />
-  );
-}
-
-/** Responsive display ad unit — requires NEXT_PUBLIC_ADSENSE_CLIENT and slot env. */
+/** Đơn vị quảng cáo thủ công (cần slot ID). Script Auto ads nằm trong app/layout.tsx <head>. */
 export function AdBanner({
   slot,
   format = "auto",
@@ -35,7 +18,7 @@ export function AdBanner({
   const pushed = useRef(false);
 
   useEffect(() => {
-    if (!CLIENT || !slot || pushed.current) return;
+    if (!ADSENSE_CLIENT || !slot || pushed.current) return;
     try {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
@@ -45,7 +28,7 @@ export function AdBanner({
     }
   }, [slot]);
 
-  if (!CLIENT || !slot) {
+  if (!ADSENSE_CLIENT || !slot) {
     if (process.env.NODE_ENV === "development") {
       return (
         <div
@@ -63,7 +46,7 @@ export function AdBanner({
       <ins
         className="adsbygoogle block"
         style={{ display: "block" }}
-        data-ad-client={CLIENT}
+        data-ad-client={ADSENSE_CLIENT}
         data-ad-slot={slot}
         data-ad-format={format}
         data-full-width-responsive="true"

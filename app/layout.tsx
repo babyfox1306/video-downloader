@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
-import { AdSenseScript } from "@/components/AdSense";
+import { ADSENSE_SCRIPT_SRC } from "@/lib/adsense";
 import { DEFAULT_METADATA } from "@/lib/seo";
 import "./globals.css";
 
@@ -38,11 +38,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="vi" className="scroll-smooth">
+      <head>
+        <script
+          async
+          src={ADSENSE_SCRIPT_SRC}
+          crossOrigin="anonymous"
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-[#F9FAFB] dark:bg-[#0F172A] text-[#111827] dark:text-[#F1F5F9] font-sans`}
       >
-        <AdSenseScript />
-
         <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md border-b border-[#E5E7EB] dark:border-[#334155] transition-colors">
           <div className="container mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-4">
             <Link
