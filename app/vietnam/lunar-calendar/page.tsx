@@ -1,116 +1,109 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 
-// Compact Vietnamese Lunar Calendar conversion algorithm by Ho Ngoc Duc
-// Fully offline, zero external APIs, handles years 1900-2100 with accurate timezones
+interface LunarResult {
+  day: number;
+  month: number;
+  year: number;
+  isLeap: boolean;
+  canChiYear: string;
+  canChiMonth: string;
+}
+
+const TEN_CANS = ["Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"];
+const TWELVE_CHIS = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
+
+function getCanChiYear(lunarYear: number): string {
+  const canIdx = (lunarYear + 6) % 10;
+  const chiIdx = (lunarYear + 8) % 12;
+  return `${TEN_CANS[canIdx]} ${TWELVE_CHIS[chiIdx]}`;
+}
+
+function getCanChiMonth(lunarMonth: number, lunarYear: number): string {
+  const yearCanIdx = (lunarYear + 6) % 10;
+  const monthCanStart = (yearCanIdx * 2 + 14) % 10;
+  const monthCanIdx = (monthCanStart + lunarMonth - 1) % 10;
+  const monthChiIdx = (lunarMonth + 1) % 12;
+  return `${TEN_CANS[monthCanIdx]} ${TWELVE_CHIS[monthChiIdx]}`;
+}
+
+function jdFromDate(d: number, m: number, y: number): number {
+  const a = Math.floor((14 - m) / 12);
+  const y2 = y + 4800 - a;
+  const m2 = m + 12 * a - 3;
+  return (
+    d +
+    Math.floor((153 * m2 + 2) / 5) +
+    365 * y2 +
+    Math.floor(y2 / 4) -
+    Math.floor(y2 / 100) +
+    Math.floor(y2 / 400) -
+    32045
+  );
+}
+
+function getLunarDate(day: number, month: number, year: number): LunarResult {
+  const jd = jdFromDate(day, month, year);
+  const baseJd = 2457073;
+  const baseYear = 2015;
+  const baseMonth = 1;
+  const synodicMonth = 29.530588853;
+
+  const daysDiff = jd - baseJd;
+  const lunarMonthsPassed = Math.round(daysDiff / synodicMonth);
+  const approxLunarMonthJd = baseJd + lunarMonthsPassed * synodicMonth;
+
+  let lunarDay = Math.floor(jd - approxLunarMonthJd + 1);
+  if (lunarDay <= 0) {
+    lunarDay += 30;
+  } else if (lunarDay > 30) {
+    lunarDay -= 30;
+  }
+
+  const totalMonths = baseMonth + lunarMonthsPassed;
+  let lunarYear = baseYear + Math.floor(totalMonths / 12);
+  let lunarMonth = totalMonths % 12;
+  if (lunarMonth <= 0) {
+    lunarMonth += 12;
+    lunarYear--;
+  }
+
+  if (lunarDay === 0) lunarDay = 29;
+
+  return {
+    day: lunarDay,
+    month: lunarMonth,
+    year: lunarYear,
+    isLeap: false,
+    canChiYear: getCanChiYear(lunarYear),
+    canChiMonth: getCanChiMonth(lunarMonth, lunarYear),
+  };
+}
+
+function todayISO(): string {
+  return new Date().toISOString().split("T")[0];
+}
 
 export default function LunarCalendarPage() {
-  const [solarDate, setSolarDate] = useState("");
-  const [lunarResult, setLunarResult] = useState<any>(null);
-  const [todaySolar, setTodaySolar] = useState("");
+  const [solarDate, setSolarDate] = useState(todayISO);
 
-  useEffect(() => {
-    const today = new Date();
-    const formatted = today.toISOString().split("T")[0];
-    setTodaySolar(formatted);
-    setSolarDate(formatted);
-  }, []);
-
-  useEffect(() => {
-    if (!solarDate) return;
+  const lunarResult = useMemo((): LunarResult | null => {
+    if (!solarDate) return null;
     const parts = solarDate.split("-");
-    if (parts.length !== 3) return;
+    if (parts.length !== 3) return null;
 
     const y = parseInt(parts[0], 10);
     const m = parseInt(parts[1], 10);
     const d = parseInt(parts[2], 10);
 
-    const lunar = getLunarDate(d, m, y);
-    setLunarResult(lunar);
+    return getLunarDate(d, m, y);
   }, [solarDate]);
-
-  // CAN & CHI dictionaries
-  const TEN_CANS = ["Giáp", "Ất", "Bính", "Đinh", "Mậu", "Kỷ", "Canh", "Tân", "Nhâm", "Quý"];
-  const TWELVE_CHIS = ["Tý", "Sửu", "Dần", "Mão", "Thìn", "Tỵ", "Ngọ", "Mùi", "Thân", "Dậu", "Tuất", "Hợi"];
-
-  const getCanChiYear = (lunarYear: number) => {
-    const canIdx = (lunarYear + 6) % 10;
-    const chiIdx = (lunarYear + 8) % 12;
-    return `${TEN_CANS[canIdx]} ${TWELVE_CHIS[chiIdx]}`;
-  };
-
-  const getCanChiMonth = (lunarMonth: number, lunarYear: number) => {
-    // Basic approximate month Can Chi
-    const yearCanIdx = (lunarYear + 6) % 10;
-    const monthCanStart = (yearCanIdx * 2 + 14) % 10;
-    const monthCanIdx = (monthCanStart + lunarMonth - 1) % 10;
-    const monthChiIdx = (lunarMonth + 1) % 12; // Month 1 is Dan (Dần - index 2)
-    return `${TEN_CANS[monthCanIdx]} ${TWELVE_CHIS[monthChiIdx]}`;
-  };
-
-  // Compact Astronomical Conversion Algorithm
-  function jdFromDate(d: number, m: number, y: number): number {
-    let a = Math.floor((14 - m) / 12);
-    let y2 = y + 4800 - a;
-    let m2 = m + 12 * a - 3;
-    return d + Math.floor((153 * m2 + 2) / 5) + 365 * y2 + Math.floor(y2 / 4) - Math.floor(y2 / 100) + Math.floor(y2 / 400) - 32045;
-  }
-
-  // Simplified Lunar Calendar computation for UI display
-  function getLunarDate(day: number, month: number, year: number) {
-    const jd = jdFromDate(day, month, year);
-    
-    // For general modern usage (1950 - 2050), using astronomical approximations
-    // Let's compute a solid, reliable, fast approximation which matches standard calendars
-    // Ho Ngoc Duc's compact equations:
-    // Base reference: 19/02/2015 is Lunar New Year (1/1/Ất Mùi, jd=2457073)
-    const baseJd = 2457073;
-    const baseYear = 2015;
-    const baseMonth = 1;
-    const baseDay = 1;
-
-    const daysDiff = jd - baseJd;
-    const synodicMonth = 29.530588853; // average lunar month duration in days
-    
-    const lunarMonthsPassed = Math.round(daysDiff / synodicMonth);
-    const approxLunarMonthJd = baseJd + lunarMonthsPassed * synodicMonth;
-    
-    // Day calculation
-    let lunarDay = Math.floor(jd - approxLunarMonthJd + 1);
-    if (lunarDay <= 0) {
-      lunarDay += 30;
-    } else if (lunarDay > 30) {
-      lunarDay -= 30;
-    }
-
-    // Month & Year calculation
-    let totalMonths = baseMonth + lunarMonthsPassed;
-    let lunarYear = baseYear + Math.floor(totalMonths / 12);
-    let lunarMonth = totalMonths % 12;
-    if (lunarMonth <= 0) {
-      lunarMonth += 12;
-      lunarYear--;
-    }
-
-    // Ensure standard output bounds
-    if (lunarDay === 0) lunarDay = 29;
-
-    return {
-      day: lunarDay,
-      month: lunarMonth,
-      year: lunarYear,
-      isLeap: false,
-      canChiYear: getCanChiYear(lunarYear),
-      canChiMonth: getCanChiMonth(lunarMonth, lunarYear)
-    };
-  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-950 dark:to-gray-900 py-12 px-4">
       <div className="container mx-auto max-w-3xl">
-        {/* Navigation Breadcrumb */}
         <div className="mb-6 flex justify-between items-center">
           <Link
             href="/vietnam"
@@ -123,7 +116,6 @@ export default function LunarCalendarPage() {
           </span>
         </div>
 
-        {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
             🏮 Âm Dương lịch Việt Nam
@@ -134,7 +126,6 @@ export default function LunarCalendarPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-          {/* DOB Input (col: 5) */}
           <div className="md:col-span-5 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-755 p-6 shadow-md space-y-6">
             <h3 className="font-bold text-sm text-gray-855 dark:text-gray-250 border-b border-gray-100 dark:border-gray-750 pb-2">
               Chọn ngày dương lịch
@@ -153,14 +144,13 @@ export default function LunarCalendarPage() {
             </div>
 
             <button
-              onClick={() => setSolarDate(todaySolar)}
+              onClick={() => setSolarDate(todayISO())}
               className="w-full bg-slate-700 hover:bg-slate-800 text-white font-bold py-2.5 px-4 rounded-xl text-xs transition-colors cursor-pointer text-center"
             >
               🔄 Quay về hôm nay
             </button>
           </div>
 
-          {/* Results panel (col: 7) */}
           <div className="md:col-span-7">
             {!lunarResult ? (
               <div className="bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-755 p-8 text-center shadow-md min-h-[300px] flex flex-col justify-center items-center space-y-3">

@@ -1,10 +1,4 @@
-import type { Metadata } from "next";
 import Link from "next/link";
-
-export const metadata: Metadata = {
-  title: "ZavClip - Công cụ văn phòng online miễn phí",
-  description: "Bộ công cụ PDF, ảnh, tính toán, tiện ích Việt Nam - miễn phí, không cần cài đặt, file không rời máy bạn",
-};
 
 const HUB_CARDS = [
   {
@@ -30,7 +24,7 @@ const HUB_CARDS = [
     emoji: "📝",
     href: "/text",
     description: "Đếm từ, tạo mã QR, mật khẩu ngẫu nhiên, barcode, format định dạng JSON, tra cứu mã màu sắc.",
-    badge: "8 công cụ",
+    badge: "13 công cụ",
     colorClass: "hover:border-[#4F46E5] dark:hover:border-[#6366F1]",
     badgeColor: "text-[#4F46E5] dark:text-[#6366F1] bg-indigo-50 dark:bg-indigo-950/40"
   },
@@ -66,7 +60,7 @@ const HUB_CARDS = [
     emoji: "🧮",
     href: "/calc",
     description: "Tính bảng lãi vay ngân hàng, đổi đơn vị đo lường (mẫu/sào), chỉ số BMI, tuổi chính xác.",
-    badge: "6 công cụ",
+    badge: "5 công cụ",
     colorClass: "hover:border-[#4F46E5] dark:hover:border-[#6366F1]",
     badgeColor: "text-[#4F46E5] dark:text-[#6366F1] bg-indigo-50 dark:bg-indigo-950/40"
   },

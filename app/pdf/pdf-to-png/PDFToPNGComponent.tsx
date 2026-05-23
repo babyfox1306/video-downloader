@@ -2,10 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import * as pdfjsLib from "pdfjs-dist";
+import { pdfjsLib } from "@/lib/pdf-worker";
 import JSZip from "jszip";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
 
 export default function PDFToPNGComponent() {
   const [file, setFile] = useState<File | null>(null);

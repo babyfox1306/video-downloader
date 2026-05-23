@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
+import { AdSenseScript } from "@/components/AdSense";
+import { DEFAULT_METADATA } from "@/lib/seo";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,19 +15,20 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "ZavClip - Công cụ văn phòng online miễn phí",
-  description: "Bộ công cụ PDF, ảnh, tính toán, tiện ích Việt Nam. Miễn phí, không cần cài đặt, file không rời khỏi máy bạn.",
-};
+export const metadata: Metadata = DEFAULT_METADATA;
 
 const navItems = [
+  { name: "Tải clip", emoji: "⬇️", href: "/downloader" },
   { name: "PDF", emoji: "📄", href: "/pdf" },
   { name: "Ảnh", emoji: "🖼️", href: "/image" },
+  { name: "Video", emoji: "🎬", href: "/video" },
   { name: "Tiện ích", emoji: "📝", href: "/text" },
   { name: "Tính toán", emoji: "🧮", href: "/calc" },
   { name: "Việt Nam", emoji: "🇻🇳", href: "/vietnam" },
+  { name: "Data", emoji: "📊", href: "/data" },
+  { name: "Design", emoji: "🎨", href: "/design" },
   { name: "Meme", emoji: "😂", href: "/meme" },
-  { name: "Soundboard", emoji: "🎵", href: "/soundboard" },
+  { name: "Sound", emoji: "🎵", href: "/soundboard" },
 ];
 
 export default function RootLayout({
@@ -38,24 +41,23 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex flex-col min-h-screen bg-[#F9FAFB] dark:bg-[#0F172A] text-[#111827] dark:text-[#F1F5F9] font-sans`}
       >
-        {/* Header Navigation */}
+        <AdSenseScript />
+
         <header className="sticky top-0 z-50 bg-white/90 dark:bg-[#0F172A]/90 backdrop-blur-md border-b border-[#E5E7EB] dark:border-[#334155] transition-colors">
-          <div className="container mx-auto max-w-6xl px-4 py-4 flex items-center justify-between">
-            {/* Logo */}
+          <div className="container mx-auto max-w-6xl px-4 py-4 flex items-center justify-between gap-4">
             <Link
               href="/"
-              className="text-xl font-bold tracking-tight text-[#111827] dark:text-[#F1F5F9] hover:text-[#4F46E5] dark:hover:text-[#6366F1] transition-colors"
+              className="text-xl font-bold tracking-tight text-[#111827] dark:text-[#F1F5F9] hover:text-[#4F46E5] dark:hover:text-[#6366F1] transition-colors shrink-0"
             >
               ZavClip
             </Link>
 
-            {/* Desktop Nav Links */}
-            <nav className="hidden md:flex items-center gap-6">
+            <nav className="hidden lg:flex items-center gap-4 flex-wrap justify-end">
               {navItems.map((item) => (
                 <Link
-                  key={item.name}
+                  key={item.href}
                   href={item.href}
-                  className="text-sm font-medium text-[#6B7280] dark:text-[#94A3B8] hover:text-[#111827] dark:hover:text-[#F1F5F9] transition-colors flex items-center gap-1"
+                  className="text-sm font-medium text-[#6B7280] dark:text-[#94A3B8] hover:text-[#111827] dark:hover:text-[#F1F5F9] transition-colors flex items-center gap-1 whitespace-nowrap"
                 >
                   <span>{item.emoji}</span>
                   <span>{item.name}</span>
@@ -65,24 +67,21 @@ export default function RootLayout({
           </div>
         </header>
 
-        {/* Main Content */}
-        <main className="flex-grow pb-20 md:pb-0">{children}</main>
+        <main className="flex-grow pb-20 lg:pb-0">{children}</main>
 
-        {/* Mobile Bottom Nav */}
-        <nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#0F172A] border-t border-[#E5E7EB] dark:border-[#334155] py-2 px-1 flex justify-around items-center z-50 shadow-lg">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-[#0F172A] border-t border-[#E5E7EB] dark:border-[#334155] py-1.5 px-0.5 flex justify-start items-center z-50 shadow-lg overflow-x-auto gap-0.5">
           {navItems.map((item) => (
             <Link
-              key={item.name}
+              key={item.href}
               href={item.href}
-              className="flex flex-col items-center gap-0.5 px-1 py-1 rounded-lg text-[10px] font-semibold text-[#6B7280] dark:text-[#94A3B8] hover:text-[#4F46E5] dark:hover:text-[#6366F1] transition-colors flex-1"
+              className="flex flex-col items-center gap-0.5 px-2 py-1 rounded-lg text-[9px] font-semibold text-[#6B7280] dark:text-[#94A3B8] hover:text-[#4F46E5] dark:hover:text-[#6366F1] transition-colors shrink-0 min-w-[52px]"
             >
-              <span className="text-base leading-none">{item.emoji}</span>
-              <span className="text-center truncate w-full">{item.name}</span>
+              <span className="text-sm leading-none">{item.emoji}</span>
+              <span className="text-center truncate max-w-[52px]">{item.name}</span>
             </Link>
           ))}
         </nav>
 
-        {/* Minimalist Footer */}
         <footer className="bg-white dark:bg-[#0F172A] py-8 border-t border-[#E5E7EB] dark:border-[#334155] text-center text-xs text-[#6B7280] dark:text-[#94A3B8] transition-colors">
           <div className="container mx-auto px-4 space-y-2">
             <p className="font-semibold text-[#111827] dark:text-[#F1F5F9]">

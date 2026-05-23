@@ -3,6 +3,10 @@
 import { useState, useRef, useEffect } from "react";
 import { FFmpeg } from "@ffmpeg/ffmpeg";
 import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { AdBanner } from "@/components/AdSense";
+
+const AD_SLOT_TOP = process.env.NEXT_PUBLIC_ADSENSE_SLOT_DOWNLOADER_TOP ?? "";
+const AD_SLOT_BOTTOM = process.env.NEXT_PUBLIC_ADSENSE_SLOT_DOWNLOADER_BOTTOM ?? "";
 
 // Force dynamic rendering (no SSR for FFmpeg.wasm)
 export const dynamic = 'force-dynamic';
@@ -367,10 +371,7 @@ export default function DownloaderPage() {
           ZavClip Downloader
         </h1>
         
-        {/* AdSense Slot */}
-        <div className="max-w-4xl mx-auto mb-8 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center min-h-[100px] flex items-center justify-center">
-          <p className="text-gray-500 dark:text-gray-400">AdSense Banner Slot</p>
-        </div>
+        <AdBanner slot={AD_SLOT_TOP} className="max-w-4xl mx-auto mb-8 min-h-[90px]" />
 
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8">
           <div className="mb-6">
@@ -505,10 +506,7 @@ export default function DownloaderPage() {
           </div>
         </div>
 
-        {/* AdSense Slot */}
-        <div className="max-w-4xl mx-auto mt-8 bg-gray-200 dark:bg-gray-700 p-4 rounded-lg text-center min-h-[100px] flex items-center justify-center">
-          <p className="text-gray-500 dark:text-gray-400">AdSense Banner Slot</p>
-        </div>
+        <AdBanner slot={AD_SLOT_BOTTOM} className="max-w-4xl mx-auto mt-8 min-h-[90px]" />
       </div>
     </div>
   );

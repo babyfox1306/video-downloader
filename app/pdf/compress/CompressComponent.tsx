@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { jsPDF } from "jspdf";
-import * as pdfjsLib from "pdfjs-dist";
-
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
+import { pdfjsLib } from "@/lib/pdf-worker";
 
 type CompressionLevel = "low" | "medium" | "strong";
 

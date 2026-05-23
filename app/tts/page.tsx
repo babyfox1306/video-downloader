@@ -1,10 +1,3 @@
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "ZavClip TTS Clip Maker - Coming Soon",
-  description: "ZavClip TTS Clip Maker - Generate viral clips with text-to-speech. Coming soon!",
-};
-
 export default function TTSPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
